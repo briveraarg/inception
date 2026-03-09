@@ -1,5 +1,5 @@
 # Secrets
-secrets/*
+secrets/
 
 # Environment
 srcs/.env
