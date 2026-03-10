@@ -29,29 +29,68 @@ docker run -d
 docker logs test-mariadb
 ```
 
-# Limpia el contenedor anterior
+### Limpiar el contenedor anterior
 
 ```
 docker rm test-mariadb
 ```
 
-# Entra al contenedor
+### Entrar al contenedor de mariadb
+
+```
 docker exec -it test-mariadb sh
 
-# Conéctate con el usuario de wordpress
-mysql -u wpuser -p
-# escribe tu MYSQL_PASSWORD del .env
+-> Conéctar con el usuario de wordpress
+mysql -u wpuser -p #user
+mysql -u root -p #root
 
-# Verifica que existe la base de datos
+-> Escribir PASSWORD del .env
+
+-> Verificar que existe la base de datos
 SHOW DATABASES;
-```
-
-Deberías ver:
-```
 +--------------------+
 | Database           |
 +--------------------+
 | information_schema |
 | wordpress          |
 +--------------------+
- 
+
+-> En modo ROOT, se puede ver la tabla de usuarios del sistema
+SELECT User, Host FROM mysql.user;
+
+```
+
+#### ¿Qué es `information_schema`?
+
+Es una base de datos **interna y automática** que crea MariaDB sola. Contiene metadatos — información sobre las otras bases de datos, tablas, usuarios, permisos, etc. Es de solo lectura y no se toca nunca.
+
+La base de datos `wordpress` es la nuestra.
+
+---
+
+#### ¿Qué significa cada usuario?
+
+| Usuario     | Host     | Significado |
+|-------------|----------|-------------|
+| `PUBLIC`    | (vacío)  | Rol base de MariaDB, lo crea solo |
+| `wpuser`    | `%`      | El que creaste tú — el `%` significa que puede conectarse **desde cualquier IP** (cualquier contenedor) |
+| `mariadb.sys` | `localhost` | Usuario interno del sistema, lo crea MariaDB solo |
+| `mysql`     | `localhost` | Usuario interno, lo crea MariaDB solo |
+| `root`      | `localhost` | El superusuario, solo accesible desde dentro del contenedor |
+
+El `%` en `wpuser` es clave — significa que WordPress desde otro contenedor podrá conectarse.
+
+---
+
+#### ¿Por qué usamos `mysql` si es MariaDB?
+
+Porque MariaDB nació como un fork de MySQL y mantiene compatibilidad total. Por eso:
+
+- El comando se llama `mysql`
+- El puerto es `3306` igual que MySQL
+- Los comandos SQL son los mismos
+- El directorio de datos es `/var/lib/mysql`
+
+Es simplemente herencia histórica. En el mundo real cuando se dice `mysql` en MariaDB es lo mismo.
+
+---
