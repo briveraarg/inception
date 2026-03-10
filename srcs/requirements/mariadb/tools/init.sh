@@ -1,5 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 set -e
+
+# crear el directorio para socket si no existe
+mkdir -p /run/mysqld
+chown -R mysql:mysql /run/mysqld
 
 # Solo inicializa si la base de datos no existe aún
 if [ ! -d "/var/lib/mysql/mysql" ]; then
