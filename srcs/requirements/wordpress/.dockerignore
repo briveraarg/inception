@@ -1,0 +1,4 @@
+# Le dice al build qué archivos no copiar a la imagen
+.env
+*.md
+.git
