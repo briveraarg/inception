@@ -21,11 +21,32 @@ services:
     depends_on:
       - mariadb
 
+  nginx:
+    build: requirements/nginx
+    container_name: nginx
+    ports:
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html
+    networks:
+      - inception
+    restart: on-failure
+    depends_on:
+      - wordpress
+
 volumes:
   db:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/brivera42/data/mariadb
   wordpress:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/brivera42/data/wordpress
 
 networks:
   inception:
