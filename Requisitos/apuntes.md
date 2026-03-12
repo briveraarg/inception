@@ -29,11 +29,18 @@ docker run -d
 docker logs test-mariadb
 ```
 
-### Limpiar el contenedor anterior
+### Ver contenedores corriendo
 
 ```
-docker rm test-mariadb
+docker ps 
+docker ps -all
 ```
+### Ver imágenes descargadas/construidas
+
+```
+docker images
+```
+---
 
 ### Entrar al contenedor de mariadb
 
@@ -66,25 +73,24 @@ Es una base de datos **interna y automática** que crea MariaDB sola. Contiene m
 
 La base de datos `wordpress` es la nuestra.
 
----
 
 #### ¿Qué significa cada usuario?
 
 | Usuario     | Host     | Significado |
 |-------------|----------|-------------|
 | `PUBLIC`    | (vacío)  | Rol base de MariaDB, lo crea solo |
-| `wpuser`    | `%`      | El que creaste tú — el `%` significa que puede conectarse **desde cualquier IP** (cualquier contenedor) |
-| `mariadb.sys` | `localhost` | Usuario interno del sistema, lo crea MariaDB solo |
-| `mysql`     | `localhost` | Usuario interno, lo crea MariaDB solo |
+| `wpuser`    | `%`      | El que creamos — el `%` significa que puede conectarse **desde cualquier IP** (cualquier contenedor) |
+| `mariadb.sys` | `localhost` | Usuario interno del sistema, lo crea MariaDB |
+| `mysql`     | `localhost` | Usuario interno, lo crea MariaDB  |
 | `root`      | `localhost` | El superusuario, solo accesible desde dentro del contenedor |
 
 El `%` en `wpuser` es clave — significa que WordPress desde otro contenedor podrá conectarse.
 
----
 
 #### ¿Por qué usamos `mysql` si es MariaDB?
 
-Porque MariaDB nació como un fork de MySQL y mantiene compatibilidad total. Por eso:
+Porque MariaDB nació como un fork de MySQL y mantiene compatibilidad total.
+Por eso:
 
 - El comando se llama `mysql`
 - El puerto es `3306` igual que MySQL
@@ -94,3 +100,155 @@ Porque MariaDB nació como un fork de MySQL y mantiene compatibilidad total. Por
 Es simplemente herencia histórica. En el mundo real cuando se dice `mysql` en MariaDB es lo mismo.
 
 ---
+
+### A limpiar, a limpiar ... en docker
+
+#### Borrar un contenedor
+```
+docker rm test-mariadb
+```
+#### Borrar una imagen
+
+```
+docker rmi mariadb
+```
+
+#### Limpieza total - borra TODO lo que no se usa
+
+```
+docker system prune -a
+```
+nota -> Por defecto, este comando no elimina volúmenes
+para evitar la pérdida accidental de datos persistentes.
+Para incluirlos, deberías añadir el flag `--volumes`.
+
+
+#### Para todo y borra volúmenes 
+```
+docker compose down -v
+```
+
+# Levantar
+```
+docker compose up --build
+```
+
+## ¿Qué es php-fpm y por qué va separado de NGINX?
+
+```
+Usuario
+   ↓
+NGINX (puerto 443)          → maneja HTTPS, archivos estáticos
+   ↓
+WordPress + php-fpm (9000)  → procesa el PHP
+   ↓
+MariaDB (3306)              → guarda los datos
+```
+
+- **NGINX** no puede ejecutar PHP solo
+- **php-fpm** es el motor que procesa los archivos `.php`
+- Hablan entre sí por el puerto `9000`
+
+---
+
+#### ¿Qué es php-fpm83 -F?
+-> php-fpm83 → es el ejecutable de php-fpm versión 8.3 (la que instala Alpine 3.20)
+-> -F → significa foreground, es decir, que corre en primer plano y no se convierte en daemon
+Sin -F php-fpm arrancaría, se iría al fondo como daemon y el contenedor se cerraría porque PID 1 terminaría. Es exactamente lo mismo que hicimos con:
+
+```
+exec mysqld --user=mysql  # en MariaDB
+exec php-fpm83 -F         # en WordPress
+```
+
+#### Primero veamos qué hace cada uno:
+
+**NGINX** es un servidor web. Que puede/sabe:
+  - Recibir peticiones HTTP/HTTPS
+  - Servir archivos estáticos (imágenes, CSS, JS)
+  - Redirigir tráfico
+
+Pero **NGINX no sabe ejecutar PHP**.
+Cuando llega una petición a un archivo `.php`, NGINX  dice "Dios,yo no sé qué hacer con esto".
+
+**php-fpm** (FastCGI Process Manager) es el motor que:
+  - Recibe el archivo `.php` de NGINX
+  - Lo ejecuta
+  - Devuelve el HTML resultante a NGINX
+  - NGINX se lo manda al usuario
+
+Usuario pide → https://brivera.42.fr
+
+```
+NGINX recibe la petición
+    ↓
+¿Es archivo estático? (jpg, css, js)
+    → SÍ  → NGINX lo sirve directamente
+    → NO  → es .php → lo manda a php-fpm puerto 9000
+                            ↓
+                      php-fpm ejecuta el PHP
+                            ↓
+                      consulta MariaDB si necesita datos
+                            ↓
+                      devuelve HTML a NGINX
+                            ↓
+                      NGINX lo manda al usuario
+```
+
+#### ¿Por qué van en contenedores separados?
+Por un lado porque el subject lo exige explícitamente:
+
+`"A Docker container that contains WordPress + php-fpm only, without nginx"`
+
+Pero también tiene sentido técnico — es la filosofía Docker:
+`Un contenedor = un proceso = una responsabilidad`
+
+Contenedor| Responsabilidad |
+-----------|-----------------|
+NGINX      | Manejar HTTPS y servir archivos |
+WordPress + php-fpm | Ejecutar el código PHP|
+MariaDB.   |Guardar los datos|
+
+### levantar docker
+
+ ```
+ docker compose up -d
+ ```
+ flag `-d` -> detached
+  - Levanta los contenedores en background
+  - Te devuelve el prompt inmediatamente
+  - No muestra logs en vivo
+  - Usa las imágenes que ya existen — no reconstruye
+
+
+```
+docker compose up --build
+```
+flag `--build`
+- Levanta los contenedores en primer plano
+- Reconstruye las imágenes** antes de levantar
+- Muestra todos los logs en vivo
+- Te bloquea la terminal
+
+
+### Se pueden combinar
+
+```
+docker compose up --build -d
+```
+
+- Reconstruye las imágenes y corre en background
+- Te devuelve el prompt
+- Para ver los logs después usas `docker logs wordpress`
+
+---
+
+#### ¿Cuándo usar cada uno?
+
+| Situación | Comando |
+|---|---|
+| Cambiaste un Dockerfile | `--build` |
+| Cambiaste el `.env` o `init.sh` | `--build` |
+| Solo quieres levantar sin cambios | `up -d` |
+| Quieres ver logs en vivo | sin `-d` |
+| Desarrollo normal | `up --build -d` |
