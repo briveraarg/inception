@@ -18,9 +18,9 @@ docker build -t mariadb srcs/requirements/mariadb
 
 ```
 docker run -d
-  --name test-mariadb
-  --env-file srcs/.env
-  mariadb
+	--name test-mariadb
+	--env-file srcs/.env
+	mariadb
 ```
 
 ### Revisar logs
@@ -137,11 +137,11 @@ docker compose up --build
 
 ```
 Usuario
-   ↓
+	 ↓
 NGINX (puerto 443)          → maneja HTTPS, archivos estáticos
-   ↓
+	 ↓
 WordPress + php-fpm (9000)  → procesa el PHP
-   ↓
+	 ↓
 MariaDB (3306)              → guarda los datos
 ```
 
@@ -164,35 +164,35 @@ exec php-fpm83 -F         # en WordPress
 #### Primero veamos qué hace cada uno:
 
 **NGINX** es un servidor web. Que puede/sabe:
-  - Recibir peticiones HTTP/HTTPS
-  - Servir archivos estáticos (imágenes, CSS, JS)
-  - Redirigir tráfico
+	- Recibir peticiones HTTP/HTTPS
+	- Servir archivos estáticos (imágenes, CSS, JS)
+	- Redirigir tráfico
 
 Pero **NGINX no sabe ejecutar PHP**.
 Cuando llega una petición a un archivo `.php`, NGINX  dice "Dios,yo no sé qué hacer con esto".
 
 **php-fpm** (FastCGI Process Manager) es el motor que:
-  - Recibe el archivo `.php` de NGINX
-  - Lo ejecuta
-  - Devuelve el HTML resultante a NGINX
-  - NGINX se lo manda al usuario
+	- Recibe el archivo `.php` de NGINX
+	- Lo ejecuta
+	- Devuelve el HTML resultante a NGINX
+	- NGINX se lo manda al usuario
 
 Usuario pide → https://brivera.42.fr
 
 ```
 NGINX recibe la petición
-    ↓
+		↓
 ¿Es archivo estático? (jpg, css, js)
-    → SÍ  → NGINX lo sirve directamente
-    → NO  → es .php → lo manda a php-fpm puerto 9000
-                            ↓
-                      php-fpm ejecuta el PHP
-                            ↓
-                      consulta MariaDB si necesita datos
-                            ↓
-                      devuelve HTML a NGINX
-                            ↓
-                      NGINX lo manda al usuario
+		→ SÍ  → NGINX lo sirve directamente
+		→ NO  → es .php → lo manda a php-fpm puerto 9000
+														↓
+											php-fpm ejecuta el PHP
+														↓
+											consulta MariaDB si necesita datos
+														↓
+											devuelve HTML a NGINX
+														↓
+											NGINX lo manda al usuario
 ```
 
 #### ¿Por qué van en contenedores separados?
@@ -215,10 +215,10 @@ MariaDB.   |Guardar los datos|
  docker compose up -d
  ```
  flag `-d` -> detached
-  - Levanta los contenedores en background
-  - Te devuelve el prompt inmediatamente
-  - No muestra logs en vivo
-  - Usa las imágenes que ya existen — no reconstruye
+	- Levanta los contenedores en background
+	- Te devuelve el prompt inmediatamente
+	- No muestra logs en vivo
+	- Usa las imágenes que ya existen — no reconstruye
 
 
 ```
@@ -249,6 +249,53 @@ docker compose up --build -d
 |---|---|
 | Cambiaste un Dockerfile | `--build` |
 | Cambiaste el `.env` o `init.sh` | `--build` |
-| Solo quieres levantar sin cambios | `up -d` |
-| Quieres ver logs en vivo | sin `-d` |
+| Solo levantar sin cambios | `up -d` |
+| Ver logs en vivo | sin `-d` |
 | Desarrollo normal | `up --build -d` |
+
+
+## ¿Qué es TLS?
+
+TLS (Transport Layer Security) es el protocolo que hace que una conexión sea **segura y cifrada**.
+Es lo que convierte `http://` en `https://`.
+
+
+Sin TLS:
+```
+Mi navegador  →  "password=123"  →  Servidor
+								 ↑ cualquiera puede leerlo
+```
+
+Con TLS:
+```
+Mi navegador  →  "x7$kL#9mQ..."  →  Servidor
+								 ↑ cifrado, nadie puede leerlo
+```
+
+### ¿Cómo funciona?
+
+Necesita dos cosas:
+	1. Certificado — es como el DNI del servidor, dice "yo soy brivera.42.fr"
+	2. Clave privada — es el secreto que usa para cifrar
+
+```
+Navegador ->  "¿Sos brivera.42.fr?"
+NGINX			->  "Sí, aca está mi certificado"
+Navegador	->	"Ok, ciframos la conexión"
+```
+
+---
+
+### TLSv1.2 vs TLSv1.3
+
+| | TLSv1.2 | TLSv1.3 |
+|---|---|---|
+| Año | 2008 | 2018 |
+| Seguridad | Buena | Mejor |
+| Velocidad | Normal | Más rápido |
+
+El subject pide soportar **solo** TLSv1.2 o TLSv1.3 — versiones anteriores están prohibidas porque tienen vulnerabilidades.
+
+Como es un proyecto local, el certificado vamos a hacer un **autofirmado** con `openssl`. No es de una autoridad oficial, pero funciona para el proyecto.
+
+El navegador mostrará un aviso de "certificado no confiable" — es normal, para este proyecto se acepta.
