@@ -1,7 +1,12 @@
 #!/bin/sh
 set -e
 
-until mysql -h mariadb -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} -e "SELECT 1;" > /dev/null 2>&1; do
+# Lee los secrets
+DB_PASSWORD=$(cat /run/secrets/db_password)
+WP_ADMIN_PASSWORD=$(cat /run/secrets/wp_admin_password)
+WP_USER_PASSWORD=$(cat /run/secrets/wpuser_password)
+
+until mysql -h mariadb -u ${MYSQL_USER} -p${DB_PASSWORD} ${MYSQL_DATABASE} -e "SELECT 1;" > /dev/null 2>&1; do
     echo "Waiting for MariaDB..."
     sleep 2
 done
@@ -20,7 +25,7 @@ if [ ! -f "/var/www/html/wp-config.php" ]; then
         --path=/var/www/html \
         --dbname=${MYSQL_DATABASE} \
         --dbuser=${MYSQL_USER} \
-        --dbpass=${MYSQL_PASSWORD} \
+        --dbpass=${DB_PASSWORD} \
         --dbhost=mariadb \
         --allow-root
 
