@@ -128,11 +128,6 @@ Para incluirlos, deberías añadir el flag `--volumes`.
 docker compose down -v
 ```
 
-# Levantar
-```
-docker compose up --build
-```
-
 ## ¿Qué es php-fpm y por qué va separado de NGINX?
 
 ```
@@ -364,15 +359,15 @@ NGINX es el estándar actual para proyectos modernos con Docker.
 
 
 ### Ver visualmente desde el host la pag de wp
+
 ```
 docker exec -it wordpress sh
 ```
+
 - `exec` → ejecuta un comando en un contenedor que ya está corriendo
 - `-it` → modo interactivo con terminal
 - `wordpress` → nombre del contenedor
 - `sh` → el shell que abre (Alpine usa sh, no bash)
-
-`wp option update siteurl 'https://127.0.0.1:8443'`
 
 WordPress guarda su URL en la base de datos en una tabla llamada `wp_options`. Tiene dos valores clave:
 
@@ -381,27 +376,37 @@ WordPress guarda su URL en la base de datos en una tabla llamada `wp_options`. T
 | `siteurl` | `https://brivera.42.fr` | `https://127.0.0.1:8443` |
 | `home` | `https://brivera.42.fr` | `https://127.0.0.1:8443` |
 
+
+```
+docker exec -it wordpress sh
+
+wp option update siteurl 'https://127.0.0.1:8443' --allow-root --path=/var/www/html
+wp option update home 'https://127.0.0.1:8443' --allow-root --path=/var/www/html
+
+exit
+```
+
+Probar en Firefox :  `https://127.0.0.1:8443`
+
+
 `wp option update` es un comando de WP-CLI que modifica esos valores directamente en MariaDB.
 
-Cuando WordPress recibe una petición, lee esos valores y hace redirect hacia ellos. Por eso cuando tenías `127.0.0.1:8443` el curl de `brivera.42.fr` dejaba de funcionar — WordPress redirigía a `127.0.0.1:8443`.
-
+Cuando WordPress recibe una petición, lee esos valores y hace redirect hacia ellos— WordPress redirige a `127.0.0.1:8443`.
 
 `--allow-root` → WP-CLI por seguridad no corre como root, este flag lo fuerza
 `--path=/var/www/html` → le dice dónde está instalado WordPress
-`exit` → sale del contenedor y vuelves a la VM
+`exit` → salir
+
+#### Para restableceer 
 
 ```
 docker exec -it wordpress sh
 /var/www/html # wp option update siteurl 'https://brivera.42.fr' --allow-root --path=/var/www/html
-Success: Updated 'siteurl' option.
-/var/www/html # 
-/var/www/html # wp option update siteurl 'https://brivera.42.fr' --allow-root --path=/var/www/html
-Success: Value passed for 'siteurl' option is unchanged.
 /var/www/html # wp option update home 'https://brivera.42.fr' --allow-root --path=/var/www/html
-Success: Updated 'home' option.
 /var/www/html # exit
 
 ```
+---
 
 #### Mostrar que los tres contenedores corren
 ```
