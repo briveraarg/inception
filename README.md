@@ -56,13 +56,13 @@ WP_USER=wpeditor
 WP_USER_EMAIL=editor@42madrid.com
 
 ```
-
+--------------------------------------------------|
 secrets/db_password		|→ MYSQL_PASSWORD|
 secrets/db_root_password	|→ MYSQL_ROOT_PASSWORD|
 secrets/wp_admin_password    	|→ WP_ADMIN_PASSWORD|
 secrets/wpuser_password      	|→ WP_USER_PASSWORD|
 .env				|→ quién eres (nombres, emails, dominios)|
-
+--------------------------------------------------------------------------|
 
 #### Levantar el proyecto
 ```
