@@ -29,14 +29,14 @@ cd inception
 ```
 #### Crear los archivos de `secrets`
 ```
-echo "wppass123" > secrets/db_password
-echo "rootpass123" > secrets/db_root_password
-echo "adminpass123" > secrets/wp_admin_password
-echo "editorpass123" > secrets/wpuser_password
+echo "dbpass123" > secrets/db_password
+echo "dbroot123" > secrets/db_root_password
+echo "wpadminpass123" > secrets/wp_admin_password
+echo "wpeditorpass123" > secrets/wpuser_password
 ```
 #### Crear el archivo `.env`
 ```
-nano srsc/.env
+nano srcs/.env
 ```
 ```
 # Dominio
@@ -57,12 +57,11 @@ WP_USER_EMAIL=editor@42madrid.com
 
 ```
 
-Las passwords ahora viven en `secrets/`:`
-secrets/db_password		→ MYSQL_PASSWORD
-secrets/db_root_password	→ MYSQL_ROOT_PASSWORD
-secrets/wp_admin_password    	→ WP_ADMIN_PASSWORD
-secrets/wpuser_password      	→ WP_USER_PASSWORD
-.env				→ quién eres (nombres, emails, dominios)
+secrets/db_password		|→ MYSQL_PASSWORD|
+secrets/db_root_password	|→ MYSQL_ROOT_PASSWORD|
+secrets/wp_admin_password    	|→ WP_ADMIN_PASSWORD|
+secrets/wpuser_password      	|→ WP_USER_PASSWORD|
+.env				|→ quién eres (nombres, emails, dominios)|
 
 
 #### Levantar el proyecto
@@ -162,7 +161,7 @@ Con Docker network los contenedores se comunican por nombre
 | Gestión | Docker gestiona la ruta | Ruta del host fija |
 | Portabilidad | Alta | Baja |
 | Rendimiento | Óptimo | Bueno |
-| Uso en proyecto | Volúmenes nombrados en `/home/brivera42/data` | ❌ prohibido por el subject |
+| Uso en proyecto | Volúmenes nombrados en `/home/brivera42/data` | prohibido por el subject |
 
 Los volúmenes nombrados persisten los datos de WordPress y MariaDB
 en `/home/brivera42/data` del host incluso si los contenedores se eliminan.
@@ -174,13 +173,8 @@ en `/home/brivera42/data` del host incluso si los contenedores se eliminan.
 - [Docker Compose Reference](https://docs.docker.com/compose)
 - [NGINX Documentation](https://nginx.org/en/docs)
 - [MariaDB Documentation](https://mariadb.com/kb/en)
-- [WordPress CLI](https://wp-cli.org)
-- [OpenSSL Documentation](https://www.openssl.org/docs)
 
-### Artículos y tutoriales
-- [PID 1 en Docker](https://cloud.google.com/architecture/best-practices-for-building-containers)
-- [TLS best practices](https://wiki.mozilla.org/Security/Server_Side_TLS)
-- [Alpine Linux packages](https://pkgs.alpinelinux.org)
+### Tutoriales
 - [Aprende Docker ahora!](https://youtu.be/4Dko5W96WHg)
 
 ### Uso de IA
