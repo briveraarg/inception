@@ -456,3 +456,36 @@ wp user list --allow-root --path=/var/www/html
 | 2  | wpeditor   | author        |
 +----+------------+---------------+
 ```
+
+
+### Certificado en la carpeta secrets 
+## Qué es ese comando
+
+
+**`openssl req`** → crea una solicitud de certificado
+**`-x509`** → en vez de una solicitud, genera directamente un certificado autofirmado
+**`-nodes`** → la clave privada no tendrá contraseña (no encrypted). Si tuviera contraseña NGINX pediría password cada vez que arranca
+**`-days 365`** → el certificado dura 365 días
+**`-newkey rsa:2048`** → genera una clave nueva RSA de 2048 bits
+**`-keyout ~/inception/secrets/server.key`** → guarda la clave privada aquí
+**`-out ~/inception/secrets/server.crt`** → guarda el certificado aquí
+**`-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=brivera.42.fr"`** → datos del certificado:
+- `C` → país (ES = España)
+- `ST` → provincia (Madrid)
+- `L` → ciudad (Madrid)
+- `O` → organización (42)
+- `CN` → dominio (brivera.42.fr) — el más importante
+
+Una sola vez, un solo certificado. 
+
+```bash
+openssl req -x509 -nodes \
+    -days 365 \
+    -newkey rsa:2048 \
+    -keyout ~/inception/secrets/server.key \
+    -out ~/inception/secrets/server.crt \
+    -subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=brivera.42.fr"
+```
+
+El certificado queda guardado en `secrets/` y NGINX lo lee desde ahí via Docker secrets.
+Siempre el mismo certificado, más estable.
