@@ -55,16 +55,6 @@ WP_ADMIN_EMAIL=brivera@student.42madrid.com
 WP_USER=wpeditor
 WP_USER_EMAIL=editor@42madrid.com
 ```
-
-**Mapeo de Secrets a Variables de Entorno:**
-
-| Archivo en secrets/ | Variable de entorno |
-|---|---|
-| db_password | MYSQL_PASSWORD |
-| db_root_password | MYSQL_ROOT_PASSWORD |
-| wp_admin_password | WP_ADMIN_PASSWORD |
-| wpuser_password | WP_USER_PASSWORD |
-
 **Nota:** El archivo `.env` contiene configuración general (dominio, usuario, email).
 
 #### Levantar el proyecto
