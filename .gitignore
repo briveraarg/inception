@@ -2,7 +2,7 @@
 secrets/
 
 # Environment
-srcs/.env
+srcs/*.env
 
 # Docker
 *.log
