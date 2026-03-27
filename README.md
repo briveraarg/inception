@@ -24,7 +24,7 @@ La infraestructura está compuesta por tres contenedores:
 ### Instalación y ejecución
 #### Clonar el repositorio
 ```
-git clone <...> inception
+git clone <repositorio> inception
 cd inception
 ```
 #### Crear los archivos de `secrets`
