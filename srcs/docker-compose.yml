@@ -31,6 +31,7 @@ services:
   nginx:
     build: requirements/nginx
     container_name: nginx
+    env_file: .env
     ports:
       - "${HTTPS_PORT:-443}:443"
     secrets:
