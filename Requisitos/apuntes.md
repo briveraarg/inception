@@ -489,3 +489,210 @@ openssl req -x509 -nodes \
 
 El certificado queda guardado en `secrets/` y NGINX lo lee desde ahí via Docker secrets.
 Siempre el mismo certificado, más estable.
+
+
+
+-----------------
+# Te lo resumo
+
+### ¿Cómo funcionan Docker y Docker Compose?
+
+- **Docker** permite crear, ejecutar y gestionar contenedores. Un contenedor es una instancia de una imagen Docker, que encapsula una aplicación y sus dependencias.
+- **Docker Compose** es una herramienta para definir y ejecutar aplicaciones multicontenedor. Permite describir los servicios, redes y volúmenes de una aplicación en un solo archivo YAML, facilitando la gestión y orquestación de varios contenedores simultáneamente.
+
+### Diferencia entre usar una imagen Docker con Docker Compose y sin Docker Compose
+
+- **Sin Docker Compose:** Usas comandos como `docker run` para iniciar manualmente cada contenedor. Debes gestionar redes, variables, volúmenes y dependencias entre contenedores de forma individual, lo que puede ser complejo y propenso a errores.
+- **Con Docker Compose:** Defines todos los servicios y su configuración en un archivo YAML. Con un solo comando (`docker compose up`), se crean y conectan todos los contenedores según lo especificado. Compose puede referenciar un Dockerfile para construir imágenes personalizadas y facilita la gestión de redes, volúmenes y dependencias.
+
+> Un Dockerfile proporciona instrucciones para construir una imagen, mientras que un archivo Compose define los contenedores en ejecución y puede referenciar Dockerfiles para construir imágenes de servicios específicos.
+
+### Beneficio de Docker comparado con máquinas virtuales
+
+- **Contenedores Docker** son más ligeros y rápidos que las máquinas virtuales porque comparten el kernel del sistema operativo y solo encapsulan la aplicación y sus dependencias.
+- **Máquinas virtuales** requieren un sistema operativo completo por instancia, lo que consume más recursos y tiempo de arranque.
+- Docker permite mayor eficiencia, portabilidad y escalabilidad en el desarrollo y despliegue de aplicaciones.
+
+### Pertinencia de la estructura de directorios requerida
+
+- La estructura de directorios es relevante porque facilita la organización del código, los Dockerfiles y los archivos Compose.
+- Incluir el archivo Compose en el repositorio permite que cualquier persona que clone el proyecto pueda levantar el entorno completo con un solo comando, asegurando consistencia y facilidad de colaboración.
+
+### Resumen de beneficios de Docker Compose
+
+- Define aplicaciones multicontenedor en un solo archivo YAML.
+- Facilita la colaboración y la replicación de entornos.
+- Permite cambios rápidos y reutilización de contenedores.
+- Portabilidad entre entornos (desarrollo, testing, producción).
+
+Sources:
+- [https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/](https://docs.docker.com/get-started/docker-concepts/the-basics/what-is-docker-compose/)
+- [https://docs.docker.com/guides/docker-compose/common-questions/](https://docs.docker.com/guides/docker-compose/common-questions/)
+- [https://docs.docker.com/compose/](https://docs.docker.com/compose/)
+- [https://docs.docker.com/guides/docker-compose/why/](https://docs.docker.com/guides/docker-compose/why/)
+- [https://docs.docker.com/compose/intro/features-uses/](https://docs.docker.com/compose/intro/features-uses/)
+
+## Ejemplo Dockerfile para MariaDB:
+
+- **FROM alpine:3.20**  
+  Indica que la imagen base será Alpine Linux versión 3.20. Alpine es una distribución ligera y segura, recomendada por Docker para imágenes pequeñas y eficientes.
+
+- **RUN apk update && apk add --no-cache mariadb mariadb-client**  
+  Ejecuta comandos dentro de la imagen para actualizar el índice de paquetes y luego instala MariaDB y su cliente usando el gestor de paquetes de Alpine (apk). El flag `--no-cache` evita almacenar archivos temporales, manteniendo la imagen pequeña.
+
+- **COPY conf/50-server.cnf /etc/my.cnf.d/mariadb-server.cnf**  
+  Copia el archivo de configuración personalizado de MariaDB desde tu proyecto al contenedor, permitiendo modificar la configuración del servidor.
+
+- **COPY tools/init.sh /usr/local/bin/init.sh**  
+  Copia un script de inicialización al contenedor, que normalmente se usa para preparar el entorno antes de iniciar MariaDB.
+
+- **RUN chmod +x /usr/local/bin/init.sh**  
+  Da permisos de ejecución al script `init.sh` para que pueda ejecutarse como entrada del contenedor.
+
+- **EXPOSE 3306**  
+  Expone el puerto 3306, que es el puerto estándar de MariaDB, para que pueda ser accedido desde fuera del contenedor.
+
+- **ENTRYPOINT ["/usr/local/bin/init.sh"]**  
+  Define el script de inicialización como el proceso principal que se ejecuta cuando el contenedor arranca.
+
+Cada línea es una instrucción de Dockerfile que define cómo se construye la imagen y cómo se comporta el contenedor al ejecutarse.
+
+Sources:
+- [https://docs.docker.com/docker-hub/image-library/trusted-content/](https://docs.docker.com/docker-hub/image-library/trusted-content/)
+- [https://docs.docker.com/build/building/best-practices/](https://docs.docker.com/build/building/best-practices/)
+
+---
+
+### Archivo de configuración: `50-server.cnf`
+
+Este archivo define la configuración del servidor MariaDB y del cliente:
+
+- **[mysqld]**  
+  - `user = mysql`: El proceso del servidor se ejecuta como el usuario `mysql`.
+  - `bind-address = 0.0.0.0`: El servidor escucha en todas las interfaces de red, permitiendo conexiones externas.
+  - `port = 3306`: Puerto estándar de MariaDB/MySQL.
+  - `datadir = /var/lib/mysql`: Directorio donde se almacenan los datos de la base de datos.
+  - `socket = /run/mysqld/mysqld.sock`: Ubicación del socket UNIX para conexiones locales.
+
+- **[client]**  
+  - `port = 3306`: Puerto para conexiones del cliente.
+  - `socket = /run/mysqld/mysqld.sock`: Ubicación del socket para el cliente.
+
+Este archivo se copia al contenedor usando la instrucción `COPY` en el Dockerfile, permitiendo personalizar la configuración del servidor MariaDB.
+
+---
+
+### Script de inicialización: `init.sh`
+
+Este script se usa como `ENTRYPOINT` en el Dockerfile, es decir, se ejecuta cuando el contenedor arranca. Su función es preparar el entorno y crear la base de datos y usuarios si es la primera vez que se inicia el contenedor.
+
+**Pasos principales:**
+
+1. **Preparar directorios y permisos:**
+   - Crea el directorio `/run/mysqld` y asigna permisos al usuario `mysql`.
+
+2. **Leer secretos:**
+   - Lee las contraseñas desde archivos en `/run/secrets/`, lo que es una práctica recomendada para manejar credenciales de forma segura en Docker Compose.
+
+3. **Inicializar la base de datos (solo si es la primera vez):**
+   - Si el directorio `/var/lib/mysql/mysql` no existe, ejecuta `mysql_install_db` para inicializar el sistema de archivos de la base de datos.
+Este script SQL configura una base de datos MySQL en un entorno como Docker, realizando varias acciones de seguridad y creación de usuarios:
+`FLUSH PRIVILEGES`
+    Recarga las tablas de privilegios desde la base de datos `mysql`, haciendo efectivos los cambios inmediatamente. 
+`DELETE FROM mysql.user WHERE User='';`
+    Elimina cuentas de usuario anónimas (sin nombre), mejorando la seguridad. 
+`DROP DATABASE IF EXISTS test;` 
+    Elimina la base de datos de prueba predeterminada `test`, que puede ser un riesgo de seguridad.
+`CREATE DATABASE IF NOT EXISTS ${MYSQL_DATABASE};`
+    Crea una nueva base de datos (con un nombre definido por la variable de entorno `MYSQL_DATABASE`) si no existe. 
+`CREATE USER IF NOT EXISTS '${MYSQL_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';`
+    Crea un usuario (nombre definido por `MYSQL_USER`) que puede conectarse desde cualquier host (`%`) con una contraseña específica (`DB_PASSWORD`).
+`GRANT ALL PRIVILEGES ON ${MYSQL_DATABASE}.* TO '${MYSQL_USER}'@'%';`
+    Otorga todos los privilegios sobre la base de datos recién creada al nuevo usuario. 
+`ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_ROOT_PASSWORD}';`
+    Cambia la contraseña del usuario `root` para conexiones locales. 
+`FLUSH PRIVILEGES;`
+    Vuelve a ejecutar `FLUSH PRIVILEGES` para asegurar que todos los cambios anteriores (crear usuario, otorgar privilegios, cambiar contraseña de root) se apliquen de inmediato.
+
+
+Este enfoque es similar al que se describe en la documentación de Docker para bases de datos, donde se copian scripts de inicialización al contenedor y se ejecutan automáticamente al arrancar por primera vez ([ver ejemplo en la guía de bases de datos](https://docs.docker.com/guides/databases/)).
+
+---
+
+**Resumen:**  
+- El archivo de configuración personaliza el comportamiento de MariaDB.
+- El script de inicialización prepara el entorno, crea la base de datos y usuarios, y asegura que las credenciales se gestionen de forma segura.
+- Ambos archivos se integran en el contenedor mediante el Dockerfile, siguiendo buenas prácticas recomendadas en la documentación de Docker.
+
+Sources:
+- [https://docs.docker.com/guides/databases/](https://docs.docker.com/guides/databases/)
+- [https://docs.docker.com/reference/dockerfile/](https://docs.docker.com/reference/dockerfile/)
+
+---
+
+## ¿Qué es Nginx?
+
+Nginx es un servidor web y proxy inverso muy utilizado para servir aplicaciones web, gestionar tráfico HTTP/HTTPS, y actuar como balanceador de carga. En Docker, Nginx se usa frecuentemente para servir contenido estático, manejar certificados SSL, y como frontend para aplicaciones multicontenedor.
+
+
+### Explicación del archivo `nginx.conf`
+
+Este archivo configura Nginx para servir el sitio web con HTTPS y PHP. 
+
+- **worker_processes auto;**
+  - Nginx ajusta automáticamente el número de procesos de trabajo según los recursos disponibles.
+
+- **events { worker_connections 1024; }**
+  - Define el número máximo de conexiones simultáneas por proceso de trabajo.
+
+- **http { ... }**
+  - Bloque principal para configuración HTTP.
+
+  - **include /etc/nginx/mime.types;**
+    - Incluye tipos MIME para servir archivos con el tipo correcto.
+	- Cuando NGINX sirve un archivo, necesita saber qué tipo es para enviarlo con el Content-Type correcto al navegador. 
+
+  - **default_type application/octet-stream;**
+    - Tipo por defecto para archivos no reconocidos.
+
+  - **server { ... }**
+    - Configura un servidor virtual.
+
+    - **listen 443 ssl;**
+      - Escucha en el puerto 443 (HTTPS) usando SSL.
+
+    - **server_name brivera.42.fr;**
+      - Nombre del servidor (dominio).
+
+    - **ssl_certificate /etc/nginx/ssl/server.crt;**
+      - Ruta al certificado SSL.
+
+    - **ssl_certificate_key /etc/nginx/ssl/server.key;**
+      - Ruta a la clave privada SSL.
+
+    - **ssl_protocols TLSv1.2 TLSv1.3;**
+      - Protocolos TLS permitidos.
+
+    - **root /var/www/html;**
+      - Directorio raíz donde se encuentran los archivos del sitio.
+
+    - **index index.php index.html;**
+      - Archivos que se buscan por defecto al acceder a una carpeta.
+
+    - **location / { try_files $uri $uri/ /index.php?$args; }**
+      - Intenta servir el archivo solicitado, si no existe, redirige a `index.php` con los argumentos.
+
+    - **location ~ \.php$ { ... }**
+      - Configura el manejo de archivos PHP:
+        - **fastcgi_pass wordpress:9000;**  
+          Envía las peticiones PHP al contenedor de WordPress en el puerto 9000.
+        - **fastcgi_index index.php;**  
+          Archivo PHP por defecto.
+        - **fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;**  
+          Define la ruta del script PHP.
+        - **include fastcgi_params;**  
+          Incluye parámetros FastCGI estándar.
+
+---
+
+Este archivo configura Nginx para servir contenido estático y dinámico (PHP), usando HTTPS y conectándose a un backend de WordPress para procesar archivos PHP.

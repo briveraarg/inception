@@ -164,6 +164,7 @@ en `/home/brivera42/data` del host incluso si los contenedores se eliminan.
 ### Documentación oficial
 - [Docker Documentation](https://docs.docker.com)
 - [Docker Compose Reference](https://docs.docker.com/compose)
+- [Que es docker? | IBM](https://www.ibm.com/es-es/think/topics/docker)
 - [NGINX Documentation](https://nginx.org/en/docs)
 - [MariaDB Documentation](https://mariadb.com/kb/en)
 
