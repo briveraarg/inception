@@ -31,7 +31,7 @@ secrets/server.crt: | dirs
 		-out    secrets/server.crt \
 		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=$(USER).42.fr"
 
-cert: dirs
+cert: 	dirs
 	@rm -f secrets/server.crt secrets/server.key
 	@$(MAKE) secrets/server.crt
 
@@ -54,6 +54,7 @@ logs:
 
 clean:
 	@$(COMPOSE) down -v
+	@rm -f $NAME
 
 fclean:
 	@echo "[inception] Full cleanup..."
@@ -64,6 +65,7 @@ fclean:
 	@sudo rm -rf $(HOME)/data/wordpress/*
 	@sudo rm -rf $(HOME)/data/mariadb/*
 	@rm -f secrets/server.crt secrets/server.key
+	@rm -f  $NAME
 
 re: fclean all
 
@@ -80,4 +82,4 @@ help:
 	@echo "  fclean  — limpieza total (imágenes, volúmenes, datos)"
 	@echo "  re      — fclean + all"
 
-.PHONY: all dirs down stop start ps status logs cert clean fclean re help
+.PHONY: dirs down stop start ps status logs cert clean fclean re help
