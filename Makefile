@@ -10,6 +10,12 @@
 #                                                                              #
 # **************************************************************************** #
 
+RED          = \033[91;1m
+GREEN        = \033[92;1m
+CYAN         = \033[96;1m
+MAGENTA      = \033[95;1m
+CLEAR_COLOR  = \033[0m
+
 NAME    = inception
 COMPOSE = docker compose -f srcs/docker-compose.yml
 SRCS    = $(shell find srcs -type f)
@@ -17,32 +23,44 @@ SRCS    = $(shell find srcs -type f)
 all: $(NAME)
 
 $(NAME): $(SRCS) secrets/server.crt
-	@$(COMPOSE) up --build -d
+	@echo "$(CYAN)[$(NAME)] Building and starting containers...$(CLEAR_COLOR)"
+	@$(COMPOSE) up -d
+	@echo "$(GREEN)[$(NAME)] Setup complete!$(CLEAR_COLOR)"
 	@touch $(NAME)
 
 dirs:
+	@echo "$(CYAN)[$(NAME)] Creating directories...$(CLEAR_COLOR)"
 	@mkdir -p $(HOME)/data/wordpress
 	@mkdir -p $(HOME)/data/mariadb
 	@mkdir -p secrets
 
 secrets/server.crt: | dirs
+	@echo "$(CYAN)[$(NAME)] Generating TLS certificate...$(CLEAR_COLOR)"
 	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 		-keyout secrets/server.key \
 		-out    secrets/server.crt \
 		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=$(USER).42.fr"
+	@echo "$(GREEN)[$(NAME)] Certificate created!$(CLEAR_COLOR)"
 
-cert: 	dirs
+cert: dirs
+	@echo "$(MAGENTA)[$(NAME)] Regenerating TLS certificate...$(CLEAR_COLOR)"
 	@rm -f secrets/server.crt secrets/server.key
 	@$(MAKE) secrets/server.crt
 
 down:
+	@echo "$(MAGENTA)[$(NAME)] Stopping containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) down
+	@echo "$(GREEN)[$(NAME)] Containers stopped!$(CLEAR_COLOR)"
 
 stop:
+	@echo "$(MAGENTA)[$(NAME)] Pausing containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) stop
+	@echo "$(GREEN)[$(NAME)] Containers paused!$(CLEAR_COLOR)"
 
 start:
+	@echo "$(CYAN)[$(NAME)] Starting containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) start
+	@echo "$(GREEN)[$(NAME)] Containers started!$(CLEAR_COLOR)"
 
 ps:
 	@$(COMPOSE) ps
@@ -53,11 +71,13 @@ logs:
 	@$(COMPOSE) logs
 
 clean:
+	@echo "$(MAGENTA)[$(NAME)] Cleaning volumes and containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) down -v
-	@rm -f $NAME
+	@rm -f $(NAME)
+	@echo "$(GREEN)[$(NAME)] Clean complete!$(CLEAR_COLOR)"
 
 fclean:
-	@echo "[inception] Full cleanup..."
+	@echo "$(RED)[$(NAME)] Full cleanup...$(CLEAR_COLOR)"
 	@$(COMPOSE) down -v --rmi all --remove-orphans
 	@docker volume ls -q --filter label=com.docker.compose.project=inception \
 		| xargs -r docker volume rm
@@ -65,21 +85,22 @@ fclean:
 	@sudo rm -rf $(HOME)/data/wordpress/*
 	@sudo rm -rf $(HOME)/data/mariadb/*
 	@rm -f secrets/server.crt secrets/server.key
-	@rm -f  $NAME
+	@rm -f $(NAME)
+	@echo "$(GREEN)[$(NAME)] Full cleanup complete!$(CLEAR_COLOR)"
 
 re: fclean all
 
 help:
 	@echo "Targets disponibles:"
-	@echo "  all     — build y start"
-	@echo "  down    — parar y eliminar contenedores"
-	@echo "  stop    — parar sin eliminar"
-	@echo "  start   — arrancar contenedores parados"
-	@echo "  ps      — estado de contenedores"
-	@echo "  logs    — ver logs"
-	@echo "  cert    — regenerar certificado TLS"
-	@echo "  clean   — down + borrar volúmenes"
-	@echo "  fclean  — limpieza total (imágenes, volúmenes, datos)"
+	@echo "  $(GREEN)all$(CLEAR_COLOR)     — build y start"
+	@echo "  $(MAGENTA)down$(CLEAR_COLOR)    — parar y eliminar contenedores"
+	@echo "  $(MAGENTA)stop$(CLEAR_COLOR)    — parar sin eliminar"
+	@echo "  $(CYAN)start$(CLEAR_COLOR)   — arrancar contenedores parados"
+	@echo "  $(CYAN)ps$(CLEAR_COLOR)      — estado de contenedores"
+	@echo "  $(CYAN)logs$(CLEAR_COLOR)    — ver logs"
+	@echo "  $(CYAN)cert$(CLEAR_COLOR)    — regenerar certificado TLS"
+	@echo "  $(MAGENTA)clean$(CLEAR_COLOR)   — down + borrar volúmenes"
+	@echo "  $(RED)fclean$(CLEAR_COLOR)  — limpieza total (imágenes, volúmenes, datos)"
 	@echo "  re      — fclean + all"
 
-.PHONY: dirs down stop start ps status logs cert clean fclean re help
+.PHONY: all dirs down stop start ps status logs cert clean fclean re help
