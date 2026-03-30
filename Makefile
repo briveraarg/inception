@@ -43,12 +43,23 @@ logs:
 
 clean:
 	@docker compose -f srcs/docker-compose.yml down -v
+	@rm -rf $(NAME)
 
-fclean: clean
+fclean:
+	@# 1. Parar todo y borrar volúmenes internos de docker
+	@docker compose -f srcs/docker-compose.yml down -v --rmi all --remove-orphans
+	@# 2. Borrar CUALQUIER volumen que haya quedado vivo (esto borra los posts)
+	@if [ -n "$$(docker volume ls -q)" ]; then \
+		docker volume rm $$(docker volume ls -q); \
+	fi
+	@# 3. Borrar las carpetas físicas (el contenido, no la carpeta en sí)
+	@sudo rm -rf $(HOME)/data/wordpress/*
+	@sudo rm -rf $(HOME)/data/mariadb/*
+	@# 4. Limpieza extra de imágenes y redes
 	@docker system prune -af
-	@rm -rf $(HOME)/data/wordpress
-	@rm -rf $(HOME)/data/mariadb
+	@rm -f $(NAME)
+
 
 re: fclean all
 
-.PHONY: all up down stop start status logs clean fclean re
+.PHONY: all up down stop start status logs clean fclean re 

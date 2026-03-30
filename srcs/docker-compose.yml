@@ -65,13 +65,13 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: /home/brivera42/data/mariadb
+      device: /home/brivera/data/mariadb
   wordpress:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/brivera42/data/wordpress
+      device: /home/brivera/data/wordpress
 
 networks:
   inception:
