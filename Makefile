@@ -10,13 +10,15 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME        = inception
-COMPOSE     = docker compose -f srcs/docker-compose.yml
-SRCS        = $(shell find srcs -type f)
+NAME    = inception
+COMPOSE = docker compose -f srcs/docker-compose.yml
+SRCS    = $(shell find srcs -type f)
 
-all: dirs secrets/server.crt
-	@echo "[inception] Building and starting containers..."
+all: $(NAME)
+
+$(NAME): $(SRCS) secrets/server.crt
 	@$(COMPOSE) up --build -d
+	@touch $(NAME)
 
 dirs:
 	@mkdir -p $(HOME)/data/wordpress
