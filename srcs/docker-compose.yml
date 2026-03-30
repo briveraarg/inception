@@ -7,7 +7,7 @@ services:
       - db_password
       - db_root_password
     volumes:
-      - db:/var/lib/mysql
+      - /home/${USER}/data/mariadb:/var/lib/mysql
     networks:
       - inception
     restart: on-failure
@@ -21,7 +21,7 @@ services:
       - wp_admin_password
       - wpuser_password
     volumes:
-      - wordpress:/var/www/html
+      - wordpress_data:/var/www/html
     networks:
       - inception
     restart: on-failure
@@ -38,7 +38,7 @@ services:
       - server.crt
       - server.key
     volumes:
-      - wordpress:/var/www/html
+      - wordpress_data:/var/www/html
     networks:
       - inception
     restart: on-failure
@@ -60,18 +60,18 @@ secrets:
     file: ../secrets/server.key
 
 volumes:
-  db:
+  mariadb_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/brivera/data/mariadb
-  wordpress:
+      device: /home/${USER}/data/mariadb
+  wordpress_data:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: /home/brivera/data/wordpress
+      device: /home/${USER}/data/wordpress
 
 networks:
   inception:

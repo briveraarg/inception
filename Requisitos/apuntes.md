@@ -490,9 +490,53 @@ openssl req -x509 -nodes \
 El certificado queda guardado en `secrets/` y NGINX lo lee desde ahí via Docker secrets.
 Siempre el mismo certificado, más estable.
 
+## Volumnes 
+Docker soporta dos tipos principales de volúmenes para persistencia de datos: **named volumes** y **bind mounts**.
 
+---
+
+### Named volumes
+
+- Son gestionados completamente por Docker.
+- Se crean explícitamente (`docker volume create`) o automáticamente al crear un contenedor o servicio.
+- Docker decide la ubicación en el host.
+- Permiten compartir datos entre múltiples contenedores.
+- Son ideales para persistencia, backup, migración y alto rendimiento.
+- Se pueden gestionar con comandos Docker y funcionan en Linux y Windows.
+- Los nuevos volúmenes pueden ser pre-poblados por el contenedor.
+- No aumentan el tamaño del contenedor y ofrecen mejor rendimiento que escribir en la capa writable del contenedor.
+
+---
+
+### Bind mounts
+
+- Montan un archivo o directorio específico del host dentro del contenedor.
+- Tú decides la ubicación en el host.
+- Permiten acceso directo a archivos del host desde el contenedor.
+- Son útiles para desarrollo, donde necesitas compartir código o configuraciones en tiempo real.
+- Pueden tener problemas de portabilidad si el host y el contenedor tienen diferencias en permisos o estructura.
+- No soportan drivers de volumen ni backup/migración tan fácilmente como los named volumes.
+
+---
+
+#### Comparación rápida
+
+|                      | Named volumes           | Bind mounts                |
+|----------------------|------------------------|----------------------------|
+| Ubicación en host    | Docker decide          | Tú decides                 |
+| Pre-poblado          | Sí                     | No                         |
+| Drivers de volumen   | Sí                     | No                         |
+| Portabilidad         | Alta                   | Depende del host           |
+| Acceso desde host    | Limitado               | Directo                    |
+
+---
+
+**Resumen:**  
+- Usa **named volumes** para persistencia, portabilidad y gestión centralizada.
+- Usa **bind mounts** para desarrollo y acceso directo a archivos del host.
 
 -----------------
+
 # Te lo resumo
 
 ### ¿Cómo funcionan Docker y Docker Compose?

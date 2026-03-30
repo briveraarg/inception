@@ -10,56 +10,74 @@
 #                                                                              #
 # **************************************************************************** #
 
-NAME = inception
+NAME        = inception
+COMPOSE     = docker compose -f srcs/docker-compose.yml
+SRCS        = $(shell find srcs -type f)
 
-all: $(NAME)
+all: dirs secrets/server.crt
+	@echo "[inception] Building and starting containers..."
+	@$(COMPOSE) up --build -d
+	@echo "[inception] Done."
 
-$(NAME): srcs/docker-compose.yml srcs/**/* secrets/server.crt
+dirs:
 	@mkdir -p $(HOME)/data/wordpress
 	@mkdir -p $(HOME)/data/mariadb
-	@docker compose -f srcs/docker-compose.yml up --build -d
-	@touch $(NAME)
+	@mkdir -p secrets
 
-secrets/server.crt:
+secrets/server.crt: dirs
+	@echo "[inception] Generating TLS certificate..."
 	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 		-keyout secrets/server.key \
-		-out secrets/server.crt \
-		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=brivera.42.fr"
+		-out    secrets/server.crt \
+		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=$(USER).42.fr"
+
+cert: dirs
+	@rm -f secrets/server.crt secrets/server.key
+	@$(MAKE) secrets/server.crt
 
 down:
-	@docker compose -f srcs/docker-compose.yml down
+	@$(COMPOSE) down
 
 stop:
-	@docker compose -f srcs/docker-compose.yml stop
+	@$(COMPOSE) stop
 
 start:
-	@docker compose -f srcs/docker-compose.yml start
+	@$(COMPOSE) start
 
-status:
-	@docker compose -f srcs/docker-compose.yml ps
+ps:
+	@$(COMPOSE) ps
+
+status: ps
 
 logs:
-	@docker compose -f srcs/docker-compose.yml logs
+	@$(COMPOSE) logs
 
 clean:
-	@docker compose -f srcs/docker-compose.yml down -v
-	@rm -rf $(NAME)
+	@$(COMPOSE) down -v
 
 fclean:
-	@# 1. Parar todo y borrar volúmenes internos de docker
-	@docker compose -f srcs/docker-compose.yml down -v --rmi all --remove-orphans
-	@# 2. Borrar CUALQUIER volumen que haya quedado vivo (esto borra los posts)
-	@if [ -n "$$(docker volume ls -q)" ]; then \
-		docker volume rm $$(docker volume ls -q); \
-	fi
-	@# 3. Borrar las carpetas físicas (el contenido, no la carpeta en sí)
+	@echo "[inception] Full cleanup..."
+	@$(COMPOSE) down -v --rmi all --remove-orphans
+	@docker volume ls -q --filter label=com.docker.compose.project=inception \
+		| xargs -r docker volume rm
+	@docker system prune -af
 	@sudo rm -rf $(HOME)/data/wordpress/*
 	@sudo rm -rf $(HOME)/data/mariadb/*
-	@# 4. Limpieza extra de imágenes y redes
-	@docker system prune -af
-	@rm -f $(NAME)
-
+	@rm -f secrets/server.crt secrets/server.key
 
 re: fclean all
 
-.PHONY: all up down stop start status logs clean fclean re 
+help:
+	@echo "Targets disponibles:"
+	@echo "  all     — build y start"
+	@echo "  down    — parar y eliminar contenedores"
+	@echo "  stop    — parar sin eliminar"
+	@echo "  start   — arrancar contenedores parados"
+	@echo "  ps      — estado de contenedores"
+	@echo "  logs    — ver logs"
+	@echo "  cert    — regenerar certificado TLS"
+	@echo "  clean   — down + borrar volúmenes"
+	@echo "  fclean  — limpieza total (imágenes, volúmenes, datos)"
+	@echo "  re      — fclean + all"
+
+.PHONY: all dirs down stop start ps status logs cert clean fclean re help
