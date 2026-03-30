@@ -23,12 +23,12 @@ dirs:
 	@mkdir -p $(HOME)/data/mariadb
 	@mkdir -p secrets
 
-secrets/server.crt:          ← sin depender de dirs
+secrets/server.crt: | dirs
 	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 		-keyout secrets/server.key \
 		-out    secrets/server.crt \
 		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=$(USER).42.fr"
-		
+
 cert: dirs
 	@rm -f secrets/server.crt secrets/server.key
 	@$(MAKE) secrets/server.crt
