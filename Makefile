@@ -17,20 +17,18 @@ SRCS        = $(shell find srcs -type f)
 all: dirs secrets/server.crt
 	@echo "[inception] Building and starting containers..."
 	@$(COMPOSE) up --build -d
-	@echo "[inception] Done."
 
 dirs:
 	@mkdir -p $(HOME)/data/wordpress
 	@mkdir -p $(HOME)/data/mariadb
 	@mkdir -p secrets
 
-secrets/server.crt: dirs
-	@echo "[inception] Generating TLS certificate..."
+secrets/server.crt:          ← sin depender de dirs
 	@openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
 		-keyout secrets/server.key \
 		-out    secrets/server.crt \
 		-subj "/C=ES/ST=Madrid/L=Madrid/O=42/CN=$(USER).42.fr"
-
+		
 cert: dirs
 	@rm -f secrets/server.crt secrets/server.key
 	@$(MAKE) secrets/server.crt
