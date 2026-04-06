@@ -535,6 +535,96 @@ Docker soporta dos tipos principales de volúmenes para persistencia de datos: *
 - Usa **named volumes** para persistencia, portabilidad y gestión centralizada.
 - Usa **bind mounts** para desarrollo y acceso directo a archivos del host.
 
+A los fines del proyecto 
+
+```
+docker volume inspect srcs_mariadb_data 
+
+[
+    {
+        "CreatedAt": "2026-04-06T18:49:55+02:00",
+        "Driver": "local",
+        "Labels": {
+            "com.docker.compose.config-hash": "c6375909f8c856eddf302b7e1d7d5e4ff9c18db06064d751d99c190a397269b2",
+            "com.docker.compose.project": "srcs",
+            "com.docker.compose.version": "5.1.0",
+            "com.docker.compose.volume": "mariadb_data"
+        },
+        "Mountpoint": "/var/lib/docker/volumes/srcs_mariadb_data/_data",
+        "Name": "srcs_mariadb_data",
+        "Options": {
+            "device": "/home/brivera/data/mariadb",
+            "o": "bind",
+            "type": "none"
+        },
+        "Scope": "local"
+    }
+]
+```
+
+
+### 1. `CreatedAt`
+- **¿Qué es?**  
+  Es la fecha y hora en que se creó este volumen.
+- **¿Para qué sirve?**  
+  Te ayuda a saber cuándo se generó el volumen, útil para auditoría o limpieza.
+
+### 2. `Driver`
+- **¿Qué es?**  
+  Indica el tipo de controlador que gestiona el volumen. En este caso, es `"local"`, que es el driver por defecto de Docker.
+- **¿Para qué sirve?**  
+  El driver define cómo y dónde se almacenan los datos del volumen. El driver local almacena los datos en el sistema de archivos del host.
+
+### 3. `Labels`
+- **¿Qué es?**  
+  Son metadatos adicionales que Docker y Docker Compose usan para identificar y gestionar el volumen.
+- **¿Para qué sirve?**  
+  Por ejemplo, aquí ves información sobre el proyecto de Compose, la versión y el nombre del volumen dentro del proyecto.
+
+### 4. `Mountpoint`
+- **¿Qué es?**  
+  Es la ruta en el sistema de archivos del host donde realmente se almacenan los datos del volumen.
+- **¿Para qué sirve?**  
+  Si quieres ver los archivos directamente en el host, esta es la carpeta donde están.  
+  En este caso: `/var/lib/docker/volumes/srcs_mariadb_data/_data`  
+  **Pero:** Como usas opciones de bind, realmente los datos están en otra ruta (ver siguiente punto).
+
+### 5. `Name`
+- **¿Qué es?**  
+  Es el nombre del volumen, en este caso `srcs_mariadb_data`.
+- **¿Para qué sirve?**  
+  Así puedes referenciar este volumen en comandos o en tu archivo Compose.
+
+### 6. `Options`
+- **¿Qué es?**  
+  Son opciones avanzadas que definen cómo se comporta el volumen.
+- **¿Para qué sirve?**  
+  Aquí tienes:
+  - `"device": "/home/brivera/data/mariadb"`: Indica la carpeta real del host donde se guardan los datos.
+  - `"o": "bind"`: Le dice a Docker que use un "bind mount", es decir, que enlace una carpeta específica del host.
+  - `"type": "none"`: Especifica el tipo de sistema de archivos (en este caso, ninguno especial).
+  
+  **Esto significa:** Aunque Docker lo gestiona como un volumen nombrado, los datos realmente están en `/home/brivera/data/mariadb` en tu máquina.
+
+### 7. `Scope`
+- **¿Qué es?**  
+  Indica el alcance del volumen. `"local"` significa que solo está disponible en el host donde se creó.
+- **¿Para qué sirve?**  
+  Si tuvieras un clúster de Docker, algunos volúmenes podrían ser compartidos entre varios hosts, pero este solo existe localmente.
+
+
+- Docker gestiona el volumen como "named volume".
+- Los datos realmente se guardan en `/home/brivera/data/mariadb` gracias a las opciones de bind mount.
+- Esto permite cumplir con los requisitos de gestión de Docker y de ubicación física de los datos.
+
+---
+
+Fuentes:
+- [https://docs.docker.com/reference/cli/docker/volume/inspect/](https://docs.docker.com/reference/cli/docker/volume/inspect/)
+- [https://docs.docker.com/reference/cli/docker/volume/create/](https://docs.docker.com/reference/cli/docker/volume/create/)
+- [https://docs.docker.com/reference/compose-file/volumes/](https://docs.docker.com/reference/compose-file/volumes/)
+
+
 -----------------
 
 # Te lo resumo

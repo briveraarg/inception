@@ -7,7 +7,7 @@ services:
       - db_password
       - db_root_password
     volumes:
-      - /home/${USER}/data/mariadb:/var/lib/mysql
+      - mariadb_data:/var/lib/mysql
     networks:
       - inception
     restart: on-failure

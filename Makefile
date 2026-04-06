@@ -13,7 +13,6 @@
 RED          = \033[91;1m
 GREEN        = \033[92;1m
 CYAN         = \033[96;1m
-MAGENTA      = \033[95;1m
 CLEAR_COLOR  = \033[0m
 
 NAME    = inception
@@ -43,17 +42,17 @@ secrets/server.crt: | dirs
 	@echo "$(GREEN)[$(NAME)] Certificate created!$(CLEAR_COLOR)"
 
 cert: dirs
-	@echo "$(MAGENTA)[$(NAME)] Regenerating TLS certificate...$(CLEAR_COLOR)"
+	@echo "$(CYAN)[$(NAME)] Regenerating TLS certificate...$(CLEAR_COLOR)"
 	@rm -f secrets/server.crt secrets/server.key
 	@$(MAKE) secrets/server.crt
 
 down:
-	@echo "$(MAGENTA)[$(NAME)] Stopping containers...$(CLEAR_COLOR)"
+	@echo "$(CYAN)[$(NAME)] Stopping containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) down
 	@echo "$(GREEN)[$(NAME)] Containers stopped!$(CLEAR_COLOR)"
 
 stop:
-	@echo "$(MAGENTA)[$(NAME)] Pausing containers...$(CLEAR_COLOR)"
+	@echo "$(CYAN)[$(NAME)] Pausing containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) stop
 	@echo "$(GREEN)[$(NAME)] Containers paused!$(CLEAR_COLOR)"
 
@@ -71,7 +70,7 @@ logs:
 	@$(COMPOSE) logs
 
 clean:
-	@echo "$(MAGENTA)[$(NAME)] Cleaning volumes and containers...$(CLEAR_COLOR)"
+	@echo "$(RED)[$(NAME)] Cleaning volumes and containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) down -v
 	@rm -f $(NAME)
 	@echo "$(GREEN)[$(NAME)] Clean complete!$(CLEAR_COLOR)"
@@ -84,6 +83,7 @@ fclean:
 	@docker system prune -af
 	@sudo rm -rf $(HOME)/data/wordpress/*
 	@sudo rm -rf $(HOME)/data/mariadb/*
+	@sudo rm -rf $(HOME)/data/*
 	@rm -f secrets/server.crt secrets/server.key
 	@rm -f $(NAME)
 	@echo "$(GREEN)[$(NAME)] Full cleanup complete!$(CLEAR_COLOR)"
@@ -93,13 +93,13 @@ re: fclean all
 help:
 	@echo "Targets disponibles:"
 	@echo "  $(GREEN)all$(CLEAR_COLOR)     — build y start"
-	@echo "  $(MAGENTA)down$(CLEAR_COLOR)    — parar y eliminar contenedores"
-	@echo "  $(MAGENTA)stop$(CLEAR_COLOR)    — parar sin eliminar"
-	@echo "  $(CYAN)start$(CLEAR_COLOR)   — arrancar contenedores parados"
-	@echo "  $(CYAN)ps$(CLEAR_COLOR)      — estado de contenedores"
-	@echo "  $(CYAN)logs$(CLEAR_COLOR)    — ver logs"
-	@echo "  $(CYAN)cert$(CLEAR_COLOR)    — regenerar certificado TLS"
-	@echo "  $(MAGENTA)clean$(CLEAR_COLOR)   — down + borrar volúmenes"
+	@echo "  $(GREEN)down$(CLEAR_COLOR)    — parar y eliminar contenedores"
+	@echo "  $(GREEN)stop$(CLEAR_COLOR)    — parar sin eliminar"
+	@echo "  $(GREEN)start$(CLEAR_COLOR)   — arrancar contenedores parados"
+	@echo "  $(GREEN)ps$(CLEAR_COLOR)      — estado de contenedores"
+	@echo "  $(GREEN)logs$(CLEAR_COLOR)    — ver logs"
+	@echo "  $(GREEN)cert$(CLEAR_COLOR)    — regenerar certificado TLS"
+	@echo "  $(RED)clean$(CLEAR_COLOR)   — down + borrar volúmenes"
 	@echo "  $(RED)fclean$(CLEAR_COLOR)  — limpieza total (imágenes, volúmenes, datos)"
 	@echo "  re      — fclean + all"
 
