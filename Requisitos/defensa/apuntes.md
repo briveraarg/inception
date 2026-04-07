@@ -443,6 +443,17 @@ docker volume ls
 docker network ls
 ```
 
+Pregunta: "¿Cómo se comunican tus contenedores?"
+
+Respuesta: "Están conectados a la red srcs_inception, 
+que es un bridge network creado por Docker Compose. 
+Esto permite que se comuniquen por names:
+- wordpress → mariadb:3306 (por DNS interno)
+- nginx → wordpress:9000 (por FastCGI)
+
+La red proporciona aislamiento y seguridad."
+
+
 #### Ver que el admin existe
 
 ```

@@ -19,6 +19,13 @@ NAME    = inception
 COMPOSE = docker compose -f srcs/docker-compose.yml
 SRCS    = $(shell find srcs -type f)
 
+# Load environment variables
+include srcs/.env
+
+# Load secrets
+DB_PASSWORD := $(shell cat secrets/db_password 2>/dev/null)
+DB_ROOT_PASSWORD := $(shell cat secrets/db_root_password 2>/dev/null)
+
 all: $(NAME)
 
 $(NAME): $(SRCS) secrets/server.crt
@@ -69,6 +76,20 @@ status: ps
 logs:
 	@$(COMPOSE) logs
 
+db:
+	@echo "$(CYAN)[$(NAME)] Accessing MariaDB as wpuser...$(CLEAR_COLOR)"
+	docker exec -it mariadb mysql -u $(MYSQL_USER) -p$(DB_PASSWORD)
+
+db-root:
+	@echo "$(CYAN)[$(NAME)] Accessing MariaDB as root...$(CLEAR_COLOR)"
+	docker exec -it mariadb mysql -u root -p$(DB_ROOT_PASSWORD)
+
+db-show:
+	@echo "$(CYAN)[$(NAME)] Databases:$(CLEAR_COLOR)"
+	docker exec mariadb mysql -u $(MYSQL_USER) -p$(DB_PASSWORD) -e "SHOW DATABASES;"
+	@echo "\n$(CYAN)[$(NAME)] Users:$(CLEAR_COLOR)"
+	docker exec mariadb mysql -u root -p$(DB_ROOT_PASSWORD) -e "SELECT User, Host FROM mysql.user;"
+
 clean:
 	@echo "$(RED)[$(NAME)] Cleaning volumes and containers...$(CLEAR_COLOR)"
 	@$(COMPOSE) down -v
@@ -92,15 +113,18 @@ re: fclean all
 
 help:
 	@echo "Targets disponibles:"
-	@echo "  $(GREEN)all$(CLEAR_COLOR)     — build y start"
-	@echo "  $(GREEN)down$(CLEAR_COLOR)    — parar y eliminar contenedores"
-	@echo "  $(GREEN)stop$(CLEAR_COLOR)    — parar sin eliminar"
-	@echo "  $(GREEN)start$(CLEAR_COLOR)   — arrancar contenedores parados"
-	@echo "  $(GREEN)ps$(CLEAR_COLOR)      — estado de contenedores"
-	@echo "  $(GREEN)logs$(CLEAR_COLOR)    — ver logs"
-	@echo "  $(GREEN)cert$(CLEAR_COLOR)    — regenerar certificado TLS"
-	@echo "  $(RED)clean$(CLEAR_COLOR)   — down + borrar volúmenes"
-	@echo "  $(RED)fclean$(CLEAR_COLOR)  — limpieza total (imágenes, volúmenes, datos)"
-	@echo "  re      — fclean + all"
+	@echo "  $(GREEN)all$(CLEAR_COLOR)		— build y start"
+	@echo "  $(GREEN)down$(CLEAR_COLOR)		— parar y eliminar contenedores"
+	@echo "  $(GREEN)stop$(CLEAR_COLOR)		— parar sin eliminar"
+	@echo "  $(GREEN)start$(CLEAR_COLOR)	— arrancar contenedores parados"
+	@echo "  $(GREEN)ps$(CLEAR_COLOR)		— estado de contenedores"
+	@echo "  $(GREEN)logs$(CLEAR_COLOR)		— ver logs"
+	@echo "  $(GREEN)db$(CLEAR_COLOR)		— acceder a MariaDB como wpuser"
+	@echo "  $(GREEN)db-root$(CLEAR_COLOR)	— acceder a MariaDB como root"
+	@echo "  $(GREEN)db-show$(CLEAR_COLOR)	— mostrar bases de datos y usuarios"
+	@echo "  $(GREEN)cert$(CLEAR_COLOR)		— regenerar certificado TLS"
+	@echo "  $(RED)clean$(CLEAR_COLOR)   	— down + borrar volúmenes"
+	@echo "  $(RED)fclean$(CLEAR_COLOR)  	— limpieza total (imágenes, volúmenes, datos)"
+	@echo "  $(GREEN)re $(CLEAR_COLOR)		— fclean + all"
 
-.PHONY: all dirs down stop start ps status logs cert clean fclean re help
+.PHONY: all dirs down stop start ps status logs db db-root db-show cert clean fclean re help
