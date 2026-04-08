@@ -183,41 +183,225 @@ ls /home/brivera42/data/mariadb
 ```
 
 ---
-
 ## Estructura del proyecto
+
 ```
 inception/
-├── Makefile                    ← punto de entrada
-├── README.md                   ← documentación general
-├── USER_DOC.md                 ← guía de usuario
-├── DEV_DOC.md                  ← esta guía
-├── secrets/                    ← credenciales (no en Git)
+├── Makefile                    ← punto de entrada (build, deploy, logs)
+├── README.md                   ← esta documentación
+├── USER_DOC.md                 ← guía de usuario final
+├── DEV_DOC.md                  ← guía técnica para desarrolladores
+│
+├── secrets/                    ← credenciales (NO en Git)
 │   ├── db_password
 │   ├── db_root_password
 │   ├── wp_admin_password
 │   ├── wpuser_password
-│   ├── server.crt
-│   └── server.key
+│   ├── server.crt              ← certificado TLS (generado por Makefile)
+│   └── server.key              ← clave privada TLS (generado por Makefile)
+│
 └── srcs/
-    ├── .env                    ← variables de entorno (no en Git)
+    ├── .env                    ← variables de entorno (NO en Git)
     ├── docker-compose.yml      ← orquestación de servicios
+    │
     └── requirements/
         ├── mariadb/
-        │   ├── Dockerfile
+        │   ├── Dockerfile      ← imagen Alpine + MariaDB
         │   ├── conf/
-        │   │   └── 50-server.cnf
+        │   │   └── 50-server.cnf    ← configuración de MariaDB
         │   └── tools/
-        │       └── init.sh
+        │       └── init.sh     ← script de inicialización
+        │
         ├── nginx/
-        │   ├── Dockerfile
+        │   ├── Dockerfile      ← imagen Alpine + NGINX
         │   ├── conf/
-        │   │   └── nginx.conf
+        │   │   └── nginx.conf.template  ← config como template
         │   └── tools/
-        │       └── init.sh
+        │       └── init.sh     ← script de inicialización
+        │
         └── wordpress/
-            ├── Dockerfile
+            ├── Dockerfile      ← imagen Alpine + PHP + WP-CLI
             ├── conf/
-            │   └── www.conf
+            │   └── www.conf    ← configuración de php-fpm
             └── tools/
-                └── init.sh
+                └── init.sh     ← instalación de WordPress headless
+
+srcs_bonus/
+└── docker-compose.bonus.yml    ← orquestación de servicios bonus
+    └── requirements_bonus/
+        ├── redis/
+        │   ├── Dockerfile      ← imagen Alpine + Redis
+        │   └── tools/
+        │       ├── init.sh     ← inicialización con contraseña
+        │       └── healthcheck.sh  ← verificación de salud
+        │
+        └── wordpress/
+            ├── Dockerfile      ← WordPress + Redis Object Cache plugin
+            ├── conf/
+            │   └── www.conf    ← configuración de php-fpm
+            └── tools/
+                └── init.sh     ← instalación + plugin Redis
+```
+
+### Explicación de directorios
+
+**`srcs/`** — Implementación obligatoria
+- `docker-compose.yml` — Orquestación de NGINX, WordPress y MariaDB
+- `requirements/` — Código fuente de cada contenedor
+
+**`srcs_bonus/`** — Servicios opcionales bonus
+- `docker-compose.bonus.yml` — Añade Redis y WordPress mejorado
+- `requirements_bonus/` — Nuevas imágenes para servicios bonus
+
+**`secrets/`** — Credenciales seguras
+- Se crea manualmente antes del primer arranque
+- Gestión vía Docker Secrets (no en variables de entorno)
+
+**`Makefile`** — Automatización
+- Genera certificados TLS
+- Construye volúmenes en `/home/brivera42/data/`
+- Orquesta el ciclo de vida (build → up → logs → down → clean)
+
+### Persistencia de datos
+
+Los datos se almacenan en volúmenes Docker que el Makefile crea automáticamente:
+
+```
+/home/brivera42/data/
+├── mariadb/     ← base de datos (volumen db)
+├── wordpress/   ← archivos del sitio (volumen wordpress)
+└── redis/       ← caché Redis bonus (volumen redis)
+```
+
+Estos volúmenes **persisten** entre reinicios:
+- `make down` — Contenedores paran pero datos quedan en volúmenes
+- `make clean` — Contenedores + volúmenes se eliminan
+- `make fclean` — Eliminación total (contenedores, volúmenes, imágenes)
+
+### Verificación
+```bash
+# Verifica que los contenedores están corriendo
+docker ps
+
+# Verifica que WordPress responde
+curl -k https://brivera.42.fr
+
+# Verifica la versión de TLS
+curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
+
+## Resumen de Implementación
+
+### ✅ Parte Obligatoria
+
+**NGINX**
+- Servidor web HTTP/HTTPS
+- Escucha en puerto 443 (TLS 1.2/1.3)
+- Certificado autofirmado renovable
+- Configuración optimizada de proxy a php-fpm
+- Compresión gzip habilitada
+
+**WordPress + php-fpm**
+- PHP 8.3 con extensiones necesarias
+- WP-CLI para instalación automatizada
+- Instalación headless via script
+- Gestión de usuarios automática
+- Volumen persistente para datos
+
+**MariaDB**
+- Base de datos relacional
+- Usuario dedicado `wpuser` con contraseña segura
+- Base de datos `wordpress` preconfigurada
+- Volumen persistente con datos
+
+**Docker Compose**
+- Orquestación de 3 servicios
+- Red bridge privada (`inception`)
+- Comunicación interna por nombres
+- Variables de entorno centralizadas
+
+**Secrets**
+- Gestión segura de contraseñas
+- Acceso restringido a contenedores
+- 4 secrets para credenciales BD/WP
+- 2 secrets para certificado TLS
+
+**Makefile**
+- Automatización completa del ciclo de vida
+- Generación de certificados
+- Build, deploy, logs, limpieza
+- Acceso fácil a servicios (db, db-root)
+
+### ✅ Bonus Implementado
+
+**Redis**
+- Caché en memoria (puerto 6379)
+- Healthcheck automático
+- Contraseña segura via secret
+- Volumen persistente para datos
+- Conectado a red `inception`
+
+**WordPress con Redis Object Cache**
+- Plugin "Redis Object Cache" v2.7.0
+- Instalación y activación automática
+- Cachea:
+  - Queries de BD
+  - Objetos PHP
+  - Resultados de funciones
+  - Transientes WordPress
+- Acelera significativamente el sitio
+
+### Tecnologías Utilizadas
+
+| Componente | Tecnología | Versión |
+|---|---|---|
+| Base | Alpine Linux | 3.20 |
+| Servidor Web | NGINX | latest |
+| FastCGI | PHP-FPM | 8.3 |
+| Base Datos | MariaDB | latest |
+| CMS | WordPress | latest |
+| Caché | Redis | latest |
+| Plugin Caché | Redis Object Cache | 2.7.0 |
+| CLI DB | MariaDB Client | latest |
+| CLI CMS | WP-CLI | latest |
+| Orquestación | Docker Compose | latest |
+
+### Scripts de Inicialización
+
+Cada servicio tiene un script personalizado que:
+- Valida dependencias (espera a que otros servicios estén listos)
+- Configura el servicio
+- Instala datos iniciales si es necesario
+- Arranca el servicio en foreground (PID 1)
+
+### Seguridad Implementada
+
+- **TLS**: Certificado autofirmado con OpenSSL, renovable
+- **Secrets**: Contraseñas en `/run/secrets/` (no en env vars)
+- **Red**: Comunicación interna solo entre contenedores
+- **Usuarios**: Usuarios no-root en contenedores
+- **Permisos**: wwwdata para WordPress, nobody para php-fpm
+- **Volúmenes**: Permisos restrictivos en directorios
+
+### Persistencia de Datos
+
+**Volúmenes Docker** (no bind mounts):
+```
+docker://<volumen>  →  /home/brivera42/data/<servicio>/
+```
+
+Ventajas:
+- Portabilidad alta
+- Mejor rendimiento que bind mounts
+- Gestión automática por Docker
+- Sobreviven reinicios de contenedores
+- Se eliminan solo con `make clean`/`make fclean`
+
+### Decisiones Arquitectónicas
+
+1. **Alpine 3.20** sobre Debian: Tamaño mínimo, seguridad, build rápido
+2. **Volúmenes nombrados** en lugar de bind mounts: Portabilidad y rendimiento
+3. **Docker Secrets** para credenciales: Seguridad, no visibles en `docker inspect`
+4. **WP-CLI** para instalación: Automatización headless sin GUI
+5. **Redis Object Cache** plugin: Aceleración automática sin configuración manual
+6. **Network bridge** privada: Comunicación interna segura, sin exposición innecesaria de puertos
 ```

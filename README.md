@@ -90,16 +90,7 @@ make bonus
 | `make bonus-ps` | Estado de contenedores bonus |
 | `make bonus-redis-cli` | Conecta a Redis CLI interactivamente |
 
-### Verificación
-```bash
-# Verifica que los contenedores están corriendo
-docker ps
 
-# Verifica que WordPress responde
-curl -k https://brivera.42.fr
-
-# Verifica la versión de TLS
-curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 ```
 
 ## Descripción del proyecto
