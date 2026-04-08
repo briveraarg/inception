@@ -1,4 +1,4 @@
-make#!/bin/sh
+#!/bin/sh
 
 # Leer la contraseña desde el secret y hacer healthcheck
 if [ -f "/run/secrets/redis_password" ]; then
