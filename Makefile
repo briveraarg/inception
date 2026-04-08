@@ -178,6 +178,7 @@ help:
 	@echo "  $(CYAN)bonus-ps$(CLEAR_COLOR)		— estado de contenedores bonus"
 	@echo "  $(CYAN)bonus-logs$(CLEAR_COLOR)	— ver logs de bonus"
 	@echo "  $(CYAN)bonus-redis-cli$(CLEAR_COLOR)	— conectar a Redis CLI"
+
 	@echo "  $(RED)bonus-clean$(CLEAR_COLOR)	— down + borrar volúmenes bonus"
 	@echo "  $(RED)bonus-fclean$(CLEAR_COLOR)	— limpieza total bonus (imágenes, volúmenes, datos)"
 

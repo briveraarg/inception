@@ -27,7 +27,8 @@ La infraestructura está compuesta por tres contenedores:
 git clone <repositorio> inception
 cd inception
 ```
-#### Crear los archivos de `secrets`
+
+### Crear los archivos de `secrets`
 ```
 echo "dbpass123" > secrets/db_password
 echo "dbroot123" > secrets/db_root_password
@@ -62,6 +63,11 @@ WP_USER_EMAIL=editor@42madrid.com
 make
 ```
 
+#### Levantar con bonus
+```
+make bonus
+```
+
 ### Comandos disponibles
 
 | Comando | Descripción |
@@ -73,6 +79,16 @@ make
 | `make re` | Reconstruye todo desde cero |
 | `make logs` | Muestra los logs de todos los servicios |
 | `make status` | Muestra el estado de los contenedores |
+
+### Comandos Bonus
+
+| Comando | Descripción |
+|---|---|
+| `make bonus` | Construye y levanta contenedores + Redis |
+| `make bonus-down` | Para los contenedores bonus |
+| `make bonus-logs` | Muestra los logs de bonus |
+| `make bonus-ps` | Estado de contenedores bonus |
+| `make bonus-redis-cli` | Conecta a Redis CLI interactivamente |
 
 ### Verificación
 ```bash
@@ -158,6 +174,35 @@ Con Docker network los contenedores se comunican por nombre
 
 Los volúmenes nombrados persisten los datos de WordPress y MariaDB
 en `/home/brivera42/data` del host incluso si los contenedores se eliminan.
+                              
+### Bonus
+
+El proyecto incluye servicios bonus que pueden activarse con:
+```
+make bonus
+```
+
+**Servicios bonus disponibles:**
+- **Redis** — Caché en memoria de alta velocidad para mejorar rendimiento
+  - Protegido con contraseña almacenada en `secrets/redis_password`
+  - Incluye healthcheck para garantizar disponibilidad
+  - Volumen persistente en `/home/brivera42/data/redis`
+- **WordPress con Redis Object Cache** — Integración automática de caché Redis
+  - Plugin "Redis Object Cache" instalado y activado
+  - Conecta automáticamente a Redis en `redis:6379`
+  - Acelera consultas de bases de datos y objetos PHP
+
+```
+make bonus-redis-cli
+# Entra a la consola de Redis donde puedes hacer:
+> PING                    # Verifica que Redis está vivo
+> SET key value          # Guardar datos
+> GET key                # Obtener datos
+> FLUSHALL               # Borrar todo
+> INFO                   # Ver estadísticas
+```
+
+Estos servicios se despliegan usando `docker-compose.bonus.yml` y se integran en la misma red que la infraestructura principal.
 
 ## Resources
 
@@ -167,6 +212,8 @@ en `/home/brivera42/data` del host incluso si los contenedores se eliminan.
 - [Que es docker? | IBM](https://www.ibm.com/es-es/think/topics/docker)
 - [NGINX Documentation](https://nginx.org/en/docs)
 - [MariaDB Documentation](https://mariadb.com/kb/en)
+- [Redis Documentation](https://redis.io/)
+- [Dockerize WordPress](https://www.docker.com/blog/how-to-dockerize-wordpress/)
 
 ### Tutoriales
 - [Aprende Docker ahora!](https://youtu.be/4Dko5W96WHg)
@@ -177,6 +224,6 @@ La IA fue utilizada como herramienta de apoyo en las siguientes áreas:
 - Comprensión de conceptos como PID 1, php-fpm y TLS
 - Revisión de configuraciones de NGINX y MariaDB
 - Generación de estructura base de la documentación
-- AI utilizadas: clude y la misma que ofrece la páguina oficial de docker
+- AI utilizadas: claude y la misma que ofrece la páguina oficial de docker
 
 Todo el código fue revisado, comprendido y adaptado manualmente.
