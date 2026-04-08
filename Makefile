@@ -38,6 +38,7 @@ dirs:
 	@echo "$(CYAN)[$(NAME)] Creating directories...$(CLEAR_COLOR)"
 	@mkdir -p $(HOME)/data/wordpress
 	@mkdir -p $(HOME)/data/mariadb
+	@mkdir -p $(HOME)/data/redis
 	@mkdir -p secrets
 
 secrets/server.crt: | dirs
@@ -111,6 +112,50 @@ fclean:
 
 re: fclean all
 
+bonus: $(SRCS) secrets/server.crt
+	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml up -d
+	@echo "$(GREEN)[$(NAME)] Bonus setup complete with Redis!$(CLEAR_COLOR)"
+
+bonus-down:
+	@echo "$(CYAN)[$(NAME)] Stopping bonus containers...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml down
+	@echo "$(GREEN)[$(NAME)] Bonus containers stopped!$(CLEAR_COLOR)"
+
+bonus-stop:
+	@echo "$(CYAN)[$(NAME)] Pausing bonus containers...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml stop
+	@echo "$(GREEN)[$(NAME)] Bonus containers paused!$(CLEAR_COLOR)"
+
+bonus-start:
+	@echo "$(CYAN)[$(NAME)] Starting bonus containers...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml start
+	@echo "$(GREEN)[$(NAME)] Bonus containers started!$(CLEAR_COLOR)"
+
+bonus-ps:
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml ps
+
+bonus-logs:
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml logs
+
+bonus-redis-cli:
+	@echo "$(CYAN)[$(NAME)] Connecting to Redis...$(CLEAR_COLOR)"
+	docker exec -it redis redis-cli
+
+bonus-clean:
+	@echo "$(RED)[$(NAME)] Cleaning bonus volumes and containers...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml down -v
+	@echo "$(GREEN)[$(NAME)] Bonus clean complete!$(CLEAR_COLOR)"
+
+bonus-fclean:
+	@echo "$(RED)[$(NAME)] Full bonus cleanup...$(CLEAR_COLOR)"
+	@docker compose -f srcs_bonus/docker-compose.bonus.yml down -v --rmi all --remove-orphans
+	@docker volume ls -q --filter label=com.docker.compose.project=srcs_bonus \
+		| xargs -r docker volume rm
+	@docker system prune -af
+	@sudo rm -rf $(HOME)/data/redis/*
+	@echo "$(GREEN)[$(NAME)] Full bonus cleanup complete!$(CLEAR_COLOR)"
+
 help:
 	@echo "Targets disponibles:"
 	@echo "  $(GREEN)all$(CLEAR_COLOR)		— build y start"
@@ -126,5 +171,15 @@ help:
 	@echo "  $(RED)clean$(CLEAR_COLOR)   	— down + borrar volúmenes"
 	@echo "  $(RED)fclean$(CLEAR_COLOR)  	— limpieza total (imágenes, volúmenes, datos)"
 	@echo "  $(GREEN)re $(CLEAR_COLOR)		— fclean + all"
+	@echo "  $(CYAN)bonus$(CLEAR_COLOR)		— build y start con Redis"
+	@echo "  $(CYAN)bonus-down$(CLEAR_COLOR)	— parar contenedores bonus"
+	@echo "  $(CYAN)bonus-stop$(CLEAR_COLOR)	— pausar sin eliminar"
+	@echo "  $(CYAN)bonus-start$(CLEAR_COLOR)	— arrancar contenedores bonus"
+	@echo "  $(CYAN)bonus-ps$(CLEAR_COLOR)		— estado de contenedores bonus"
+	@echo "  $(CYAN)bonus-logs$(CLEAR_COLOR)	— ver logs de bonus"
+	@echo "  $(CYAN)bonus-redis-cli$(CLEAR_COLOR)	— conectar a Redis CLI"
+	@echo "  $(RED)bonus-clean$(CLEAR_COLOR)	— down + borrar volúmenes bonus"
+	@echo "  $(RED)bonus-fclean$(CLEAR_COLOR)	— limpieza total bonus (imágenes, volúmenes, datos)"
 
-.PHONY: all dirs down stop start ps status logs db db-root db-show cert clean fclean re help
+.PHONY: all dirs down stop start ps status logs db db-root db-show cert clean fclean re help \
+	bonus bonus-down bonus-stop bonus-start bonus-ps bonus-logs bonus-redis-cli bonus-clean bonus-fclean
