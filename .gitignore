@@ -3,6 +3,7 @@ secrets/
 
 # Environment
 srcs/.env
+srcs_bonus/.env
 
 # Docker
 *.log
