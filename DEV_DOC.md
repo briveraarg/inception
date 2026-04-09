@@ -112,6 +112,12 @@ curl -k https://brivera.42.fr
 | `make re` | Reconstruye todo desde cero |
 | `make logs` | Muestra logs de todos los servicios |
 | `make status` | Muestra estado de los contenedores |
+| `make bonus` | Construye y levanta todo + Redis + FTP + Static (bonus) |
+| `make bonus-down` | Para los contenedores bonus |
+| `make bonus-logs` | Muestra logs de servicios bonus |
+| `make bonus-ps` | Muestra estado de contenedores bonus |
+| `make bonus-redis-cli` | Conecta a Redis CLI |
+| `make bonus-ftp-cli` | Conecta al servidor FTP |
 
 ### Docker directo
 ```bash
@@ -139,11 +145,22 @@ docker images
 ```
 
 ### Reconstruir un solo servicio
+
+**Servicios principales:**
 ```bash
 cd srcs
 docker compose up --build nginx
 docker compose up --build wordpress
 docker compose up --build mariadb
+```
+
+**Servicios bonus:**
+```bash
+cd srcs_bonus
+docker compose -f docker-compose.bonus.yml up --build redis
+docker compose -f docker-compose.bonus.yml up --build ftp
+docker compose -f docker-compose.bonus.yml up --build static
+docker compose -f docker-compose.bonus.yml up --build wordpress
 ```
 
 ---
@@ -242,6 +259,12 @@ srcs_bonus/
         │   └── tools/
         │       └── entrypoint.sh    ← gestión de usuarios y arranque
         │
+        ├── static/
+        │   ├── Dockerfile      ← imagen Alpine + Nginx para contenido estático
+        │   └── html/
+        │       ├── index.html   ← página principal
+        │       └── fotos/       ← galería de imágenes
+        │
         └── wordpress/
             ├── Dockerfile      ← WordPress + Redis Object Cache plugin
             ├── conf/
@@ -278,7 +301,7 @@ Los datos se almacenan en volúmenes Docker que el Makefile crea automáticament
 ├── mariadb/     ← base de datos (volumen db)
 ├── wordpress/   ← archivos del sitio (volumen wordpress)
 ├── redis/       ← caché Redis bonus (volumen redis)
-└── ftp/         ← archivos del cliente FTP (volumen ftp)
+└── static/      ← contenido estático bonus (opcional)
 ```
 
 Estos volúmenes **persisten** entre reinicios:
@@ -356,6 +379,15 @@ curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 - Volumen para persistencia de datos compartido
 - Conectado a red `inception`
 
+**Static**
+- Servidor web nginx para contenido estático
+- Acceso en puerto 80 (HTTP)
+- Sirve archivos HTML, CSS, imágenes sin procesamiento PHP
+- Ideal para galerías de fotos y contenido estático
+- Volumen con archivos en `/var/www/html`
+- Carpeta `/fotos` para almacenar imágenes
+- Conectado a red `inception`
+
 **WordPress con Redis Object Cache**
 - Plugin "Redis Object Cache" v2.7.0
 - Instalación y activación automática
@@ -372,6 +404,7 @@ curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 |---|---|---|
 | Base | Alpine Linux | 3.20 |
 | Servidor Web | NGINX | latest |
+| Servidor Estático | NGINX | latest |
 | FastCGI | PHP-FPM | 8.3 |
 | Base Datos | MariaDB | latest |
 | CMS | WordPress | latest |
@@ -421,4 +454,7 @@ Ventajas:
 4. **WP-CLI** para instalación: Automatización headless sin GUI
 5. **Redis Object Cache** plugin: Aceleración automática sin configuración manual
 6. **Network bridge** privada: Comunicación interna segura, sin exposición innecesaria de puertos
+7. **Servidor Static separado**: Servir contenido estático eficientemente sin cargar PHP
+   - NGINX en contenedor dedicado para archivos estáticos (HTML, CSS, imágenes)
+   - Mejora rendimiento y seguridad separando lógica dinámica de estática
 ```

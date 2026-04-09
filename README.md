@@ -19,7 +19,9 @@ La infraestructura está compuesta por tres contenedores:
 ### Requisitos previos
 - Docker y Docker Compose instalados
 - Make instalado
-- Puerto 443 disponible
+- Puerto 443 disponible (HTTPS)
+- Puerto 21 disponible si usas bonus (FTP)
+- Puerto 80 disponible si usas bonus (Static)
 
 ### Instalación y ejecución
 #### Clonar el repositorio
@@ -84,7 +86,7 @@ make bonus
 
 | Comando | Descripción |
 |---|---|
-| `make bonus` | Construye y levanta contenedores + Redis + FTP |
+| `make bonus` | Construye y levanta contenedores + Redis + FTP + Static |
 | `make bonus-down` | Para los contenedores bonus |
 | `make bonus-logs` | Muestra los logs de bonus |
 | `make bonus-ps` | Estado de contenedores bonus |
@@ -188,6 +190,11 @@ make bonus
   - Protegido con credenciales almacenadas en `secrets/ftp_password`
   - Permite subir y descargar archivos de WordPress
   - Accesible en puerto 21 (requiere cliente FTP o `make bonus-ftp-cli`)
+- **Static** — Servidor web para contenido estático
+  - Sirve archivos HTML, CSS, imágenes y otros recursos estáticos
+  - Accesible en puerto 80 via HTTP
+  - Ideal para galerías de fotos y sitios estáticos
+  - Accesible en `http://brivera.42.fr:80` o en la red interna
 
 ```
 make bonus-redis-cli
@@ -206,6 +213,17 @@ make bonus-ftp-cli
 # - lftp: lftp -u usuario,contraseña ftp://localhost
 # - FileZilla: Conectar a localhost:21
 # Credenciales almacenadas en secrets/ftp_password
+```
+
+**Acceso a Static (Contenido Estático):**
+```
+# Desde la máquina:
+curl http://brivera.42.fr:80
+# O en el navegador:
+http://brivera.42.fr:80
+# Los archivos estáticos están en:
+# /var/www/html/index.html
+# /var/www/html/fotos/ -> imágenes
 ```
 
 Estos servicios se despliegan usando `docker-compose.bonus.yml` y se integran en la misma red que la infraestructura principal.

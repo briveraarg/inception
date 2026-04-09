@@ -39,6 +39,7 @@ dirs:
 	@mkdir -p $(HOME)/data/wordpress
 	@mkdir -p $(HOME)/data/mariadb
 	@mkdir -p $(HOME)/data/redis
+	@mkdir -p $(HOME)/data/static
 	@mkdir -p secrets
 
 secrets/server.crt: | dirs
@@ -113,9 +114,9 @@ re: fclean all
 
 # -------- BONUS -------- #
 bonus: $(SRCS) secrets/server.crt
-	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis and FTP...$(CLEAR_COLOR)"
+	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis, FTP and Static...$(CLEAR_COLOR)"
 	@docker compose -f srcs_bonus/docker-compose.bonus.yml up -d
-	@echo "$(GREEN)[$(NAME)] Bonus setup complete with Redis!$(CLEAR_COLOR)"
+	@echo "$(GREEN)[$(NAME)] Bonus setup complete!$(CLEAR_COLOR)"
 
 bonus-down:
 	@echo "$(CYAN)[$(NAME)] Stopping bonus containers...$(CLEAR_COLOR)"
@@ -150,6 +151,7 @@ bonus-fclean:
 		| xargs -r docker volume rm
 	@docker system prune -af
 	@sudo rm -rf $(HOME)/data/redis/*
+	@sudo rm -rf $(HOME)/data/static/*
 	@echo "$(GREEN)[$(NAME)] Full bonus cleanup complete!$(CLEAR_COLOR)"
 
 bonus-redis-cli:
@@ -161,32 +163,32 @@ bonus-ftp-cli:
 	docker exec -it ftp /bin/sh
 
 help:
-	@echo "Targets disponibles:"
-	@echo "  $(GREEN)all$(CLEAR_COLOR)		— build y start"
-	@echo "  $(GREEN)down$(CLEAR_COLOR)		— parar y eliminar contenedores"
-	@echo "  $(GREEN)stop$(CLEAR_COLOR)		— parar sin eliminar"
-	@echo "  $(GREEN)start$(CLEAR_COLOR)	— arrancar contenedores parados"
-	@echo "  $(GREEN)ps$(CLEAR_COLOR)		— estado de contenedores"
-	@echo "  $(GREEN)logs$(CLEAR_COLOR)		— ver logs"
-	@echo "  $(GREEN)db$(CLEAR_COLOR)		— acceder a MariaDB como wpuser"
-	@echo "  $(GREEN)db-root$(CLEAR_COLOR)	— acceder a MariaDB como root"
-	@echo "  $(GREEN)db-show$(CLEAR_COLOR)	— mostrar bases de datos y usuarios"
-	@echo "  $(GREEN)cert$(CLEAR_COLOR)		— regenerar certificado TLS"
-	@echo "  $(RED)clean$(CLEAR_COLOR)   	— down + borrar volúmenes"
-	@echo "  $(RED)fclean$(CLEAR_COLOR)  	— limpieza total (imágenes, volúmenes, datos)"
+	@echo "Available targets:"
+	@echo "  $(GREEN)all$(CLEAR_COLOR)		— build and start"
+	@echo "  $(GREEN)down$(CLEAR_COLOR)		— stop and remove containers"
+	@echo "  $(GREEN)stop$(CLEAR_COLOR)		— pause without removing"
+	@echo "  $(GREEN)start$(CLEAR_COLOR)	— restart paused containers"
+	@echo "  $(GREEN)ps$(CLEAR_COLOR)		— container status"
+	@echo "  $(GREEN)logs$(CLEAR_COLOR)		— view logs"
+	@echo "  $(GREEN)db$(CLEAR_COLOR)		— access MariaDB as wpuser"
+	@echo "  $(GREEN)db-root$(CLEAR_COLOR)	— access MariaDB as root"
+	@echo "  $(GREEN)db-show$(CLEAR_COLOR)	— show databases and users"
+	@echo "  $(GREEN)cert$(CLEAR_COLOR)		— regenerate TLS certificate"
+	@echo "  $(RED)clean$(CLEAR_COLOR)   	— down + remove volumes"
+	@echo "  $(RED)fclean$(CLEAR_COLOR)  	— full cleanup (images, volumes, data)"
 	@echo "  $(GREEN)re $(CLEAR_COLOR)		— fclean + all"
 	@echo "  $(GREEN)------------------------------------- $(CLEAR_COLOR)"
-	@echo "  $(CYAN)bonus$(CLEAR_COLOR)		— build y start con Redis"
-	@echo "  $(CYAN)bonus-down$(CLEAR_COLOR)	— parar contenedores bonus"
-	@echo "  $(CYAN)bonus-stop$(CLEAR_COLOR)	— pausar sin eliminar"
-	@echo "  $(CYAN)bonus-start$(CLEAR_COLOR)	— arrancar contenedores bonus"
-	@echo "  $(CYAN)bonus-ps$(CLEAR_COLOR)		— estado de contenedores bonus"
-	@echo "  $(CYAN)bonus-logs$(CLEAR_COLOR)	— ver logs de bonus"
-	@echo "  $(CYAN)bonus-redis-cli$(CLEAR_COLOR)	— conectar a Redis CLI"
-	@echo "  $(CYAN)bonus-ftp-cli$(CLEAR_COLOR)	— conectar al servidor FTP"
+	@echo "  $(CYAN)bonus$(CLEAR_COLOR)		— build and start with Redis + FTP + Static"
+	@echo "  $(CYAN)bonus-down$(CLEAR_COLOR)	— stop bonus containers"
+	@echo "  $(CYAN)bonus-stop$(CLEAR_COLOR)	— pause without removing"
+	@echo "  $(CYAN)bonus-start$(CLEAR_COLOR)	— restart bonus containers"
+	@echo "  $(CYAN)bonus-ps$(CLEAR_COLOR)		— bonus container status"
+	@echo "  $(CYAN)bonus-logs$(CLEAR_COLOR)	— view bonus logs"
+	@echo "  $(CYAN)bonus-redis-cli$(CLEAR_COLOR)	— connect to Redis CLI"
+	@echo "  $(CYAN)bonus-ftp-cli$(CLEAR_COLOR)	— connect to FTP server"
 
-	@echo "  $(RED)bonus-clean$(CLEAR_COLOR)	— down + borrar volúmenes bonus"
-	@echo "  $(RED)bonus-fclean$(CLEAR_COLOR)	— limpieza total bonus (imágenes, volúmenes, datos)"
+	@echo "  $(RED)bonus-clean$(CLEAR_COLOR)	— down + remove bonus volumes"
+	@echo "  $(RED)bonus-fclean$(CLEAR_COLOR)	— full bonus cleanup (images, volumes, data)"
 
 .PHONY: all dirs down stop start ps status logs db db-root db-show cert clean fclean re help \
 	bonus bonus-down bonus-stop bonus-start bonus-ps bonus-logs bonus-redis-cli bonus-ftp-cli bonus-clean bonus-fclean

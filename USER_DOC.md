@@ -17,14 +17,15 @@ WordPress y MariaDB no son accesibles directamente desde el exterior.
 
 ### Servicios Bonus (opcional)
 
-Si ejecutas `make bonus`, se agregan dos servicios adicionales:
+Si ejecutas `make bonus`, se agregan tres servicios adicionales:
 
 | Servicio | Descripción | Puerto |
 |---|---|---|
 | Redis | Caché en memoria para acelerar WordPress | interno 6379 |
 | FTP | Servidor de transferencia de archivos | 21 |
+| Static | Servidor web para contenido estático | 80 |
 
-Estos servicios se integran con la infraestructura principal y mejoran el rendimiento y la gestión del sitio.
+Estos servicios se integran con la infraestructura principal y mejoran el rendimiento, gestión del sitio y ofrecen una galería estática.
 
 ---
 
@@ -36,7 +37,7 @@ cd ~/inception
 make
 ```
 
-### Iniciar con servicios bonus (Redis + FTP)
+### Iniciar con servicios bonus (Redis + FTP + Static)
 ```bash
 make bonus
 ```
@@ -161,6 +162,7 @@ docker logs mariadb
 make bonus-logs
 docker logs redis
 docker logs ftp
+docker logs static
 ```
 
 ### Verificar WordPress
@@ -238,4 +240,29 @@ cd wordpress        # Navegar a directorios
 get archivo.txt     # Descargar archivos
 put archivo.txt     # Subir archivos
 quit                # Salir
+```
+
+### Verificar Static (bonus)
+
+Si tienes habilitado el servicio bonus, puedes acceder al servidor de contenido estático:
+
+```bash
+# Desde la máquina
+curl http://brivera.42.fr:80
+```
+
+O en el navegador:
+```
+http://brivera.42.fr:80
+```
+
+Deberías ver la página de inicio `index.html`. Los archivos están organizados así:
+```
+/var/www/html/index.html     → Página principal
+/var/www/html/fotos/         → Galería de imágenes
+```
+
+Para acceder a las fotos desde el navegador:
+```
+http://brivera.42.fr:80/fotos
 ```
