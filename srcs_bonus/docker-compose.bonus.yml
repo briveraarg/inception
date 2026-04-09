@@ -82,6 +82,15 @@ services:
     depends_on:
       - wordpress
 
+  static:
+    build: requirements_bonus/static
+    container_name: static
+    networks:
+      - inception
+    restart: on-failure
+    ports:
+      - "80:80"
+
 secrets:
   db_password:
     file: ../secrets/db_password
