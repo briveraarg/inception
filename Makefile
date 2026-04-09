@@ -72,8 +72,6 @@ start:
 ps:
 	@$(COMPOSE) ps
 
-status: ps
-
 logs:
 	@$(COMPOSE) logs
 
@@ -113,7 +111,7 @@ fclean:
 re: fclean all
 
 bonus: $(SRCS) secrets/server.crt
-	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis...$(CLEAR_COLOR)"
+	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis and FTP...$(CLEAR_COLOR)"
 	@docker compose -f srcs_bonus/docker-compose.bonus.yml up -d
 	@echo "$(GREEN)[$(NAME)] Bonus setup complete with Redis!$(CLEAR_COLOR)"
 
@@ -137,10 +135,6 @@ bonus-ps:
 
 bonus-logs:
 	@docker compose -f srcs_bonus/docker-compose.bonus.yml logs
-
-bonus-redis-cli:
-	@echo "$(CYAN)[$(NAME)] Connecting to Redis...$(CLEAR_COLOR)"
-	docker exec -it redis redis-cli
 
 bonus-clean:
 	@echo "$(RED)[$(NAME)] Cleaning bonus volumes and containers...$(CLEAR_COLOR)"

@@ -66,6 +66,21 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
+  ftp:
+    build: requirements_bonus/ftp
+    container_name: ftp
+    secrets:
+      - ftp_password
+    ports:
+      - "21:21"
+      - "21100-21110:21100-21110"
+    volumes:
+      - wordpress_data:/home/ftpuser/wordpress 
+    networks:
+      - inception
+    restart: on-failure
+    depends_on:
+      - wordpress
 
 secrets:
   db_password:
@@ -82,6 +97,8 @@ secrets:
     file: ../secrets/server.crt
   server.key:
     file: ../secrets/server.key
+  ftp_password:
+    file: ../secrets/ftp_password 
 
 volumes:
   mariadb_data:

@@ -841,3 +841,33 @@ Este archivo configura Nginx para servir el sitio web con HTTPS y PHP.
 ---
 
 Este archivo configura Nginx para servir contenido estático y dinámico (PHP), usando HTTPS y conectándose a un backend de WordPress para procesar archivos PHP.
+
+
+## ftp
+
+# Crear un archivo de prueba desde FTP
+ftp localhost 21
+# login con ftpuser...
+ftp> cd wordpress
+ftp> put /etc/hostname test.txt
+ftp> ls
+ftp> quit
+
+# Verificar que el archivo aparece en el contenedor de WordPress
+docker exec wordpress ls /var/www/html | grep test
+
+No directamente, los archivos subidos por FTP al volumen de WordPress solo se verían en el navegador si son archivos que WordPress sirve, por ejemplo:
+
+```bash
+# Subir un archivo HTML de prueba
+ftp localhost 21
+ftp> cd wordpress
+ftp> put archivo.html
+ftp> quit
+```
+
+Luego en el navegador:
+```
+https://brivera.42.fr/archivo.html
+```
+
