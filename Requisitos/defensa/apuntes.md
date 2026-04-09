@@ -621,7 +621,7 @@ Verificar en WordPress:
 ```bash
 docker exec wordpress ls /var/www/html | grep test
 ```
-
+curl -k https://brivera.42.fr/test
 ---
 
 ## Bonus — Static
