@@ -1,615 +1,628 @@
 <!doctype html>
+<!-- ************************************************************************** -->
+<!--                                                                            -->
+<!--                         Sorteo de Elementos Químicos                        -->
+<!--                                                                            -->
+<!--   Archivo : tabla.html                                                      -->
+<!--   Nota    : Interfaz para sortear elementos de la tabla periódica sin       -->
+<!--             repeticiones, reutilizando la cabecera del generador.           -->
+<!--                                                                            -->
+<!-- ************************************************************************** -->
+
 <html lang="es">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Sorteador de Fotos — Bingo Argentina</title>
-    <link href="https://fonts.googleapis.com/css2?family=Alegreya+Sans:wght@400;700;800&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --azul: #74c0fc;
-            --azul-line: rgba(116,192,252,0.18);
-            --blanco: #ffffff;
-            --texto: #083344
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ruleta Química</title>
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+	:root
+	{
+	  font-family: 'Lato', Arial, Helvetica, sans-serif;
+	  --azul: #054cf4ff;
+	  --violeta: #5a4fe1ff;
+	  --verde: #baf058;
+	  --texto-oscuro: #0b1b2b;
+	  --fondo: #ffffff;
+	  --gris: #e8edf2;
+	}
 
-        html,
-        body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Alegreya Sans', Inter, system-ui, Arial, sans-serif;
-            color: var(--texto)
-        }
+	body {
+	  padding: 0;
+	  margin: 0;
+	  background-color: var(--fondo);
+	  background-image:
+		linear-gradient(0deg, transparent 19px, var(--verde) 20px),
+		linear-gradient(90deg, transparent 19px, var(--verde) 20px);
+	  background-size: 20px 20px;
+	  background-position: center center;
+	  min-height: 100vh;
+	  display: flex;
+	  flex-direction: column;
+	}
 
-        body {
-            /* Fondo: grilla de cuadrados formados por líneas celestes */
-            background-color: var(--blanco);
-            background-image:
-                linear-gradient(to right, var(--azul-line) 2px, transparent 2px),
-                linear-gradient(to bottom, var(--azul-line) 2px, transparent 2px);
-            /* tamaño de cada celda */
-            background-size: 48px 48px;
-            /* centrar la app como antes */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 58px;
-            box-sizing: border-box
-        }
+	/* ************************************************************************** */
+	/*  Cabecera heredada del generador de cartones                               */
+	/* ************************************************************************** */
+	.taco-violeta {
+	  width: 100%;
+	  background: var(--azul);
+	  margin: 0;
+	  display: flex;
+	  justify-content: center;
+	  padding: 18px 0;
+	  box-sizing: border-box;
+	}
 
-        .app {
-            width: 100%;
-            max-width: 1100px;
-            background: rgba(200, 72, 72, 0.0);
-            backdrop-filter: blur(6px);
-            border-radius: 12px;
-            padding: 18px;
-        }
+	.taco-violeta-content {
+	  width: 100%;
+	  max-width: 1200px;
+	  margin: 0 auto;
+	  display: flex;
+	  align-items: center;
+	  justify-content: space-between;
+	  gap: 32px;
+	  padding: 18px 32px;
+	  box-sizing: border-box;
+	}
 
-        header {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            justify-content: center;
-        }
+	.taco-violeta-textos {
+	  display: flex;
+	  flex-direction: column;
+	  gap: 8px;
+	}
 
-        /* flag removed per user request */
+	.taco-violeta h1 {
+	  color: #fff;
+	  margin: 0;
+	  font-size: 42px;
+	  font-weight: 900;
+	  text-shadow: 0 0 4px rgba(0, 0, 0, 0);
+	}
 
-        h1 {
-            font-size: 44px;
-            margin: 0;
-            font-weight: 800; /* extra-bold */
-        }
+	.taco-violeta p {
+	  margin: 0;
+	  color: #fff;
+	  font-size: 18px;
+	  max-width: 520px;
+	}
 
-        .controls {
-            margin-top: 18px;
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            justify-content: center; /* center the buttons */
-            align-items: center;
-        }
+	.logo-fiq {
+	  height: 72px;
+	  width: auto;
+	  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+	}
 
-        button {
-            background: var(--azul);
-            border: none;
-            color: var(--texto);
-            padding: 12px 22px;
-            border-radius: 12px;
-            font-weight: 700; /* bold */
-            font-size: 16px;
-            min-width: 160px;
-            cursor: pointer;
-            box-shadow: 0 6px 18px rgba(4,24,40,0.06);
-            transition: transform 150ms ease, box-shadow 150ms ease;
-            font-family: 'Alegreya Sans', Inter, system-ui, Arial, sans-serif; /* ensure buttons use Alegreya Sans */
-        }
+	.mas-actividades span {
+	  color: var(--verde);
+	  font-weight: 700;
+	}
 
-        button.secondary {
-            background: transparent;
-            border: 2px solid rgba(3, 139, 250, 0.913);
-            color :var(--blanco);
-        }
+	.mas-actividades a {
+	  color: #fff;
+	  font-weight: 700;
+	  text-decoration: none;
+	}
 
-        /* specific colors for main controls */
-        #spinBtn {
-            background: var(--azul);
-            color: var(--texto);
-            border: none;
-            font-family: 'Alegreya Sans', Inter, system-ui, Arial, sans-serif;
-        }
+	/* ************************************************************************** */
+	/*  Contenedor principal y tarjeta de resultado                               */
+	/* ************************************************************************** */
+	.wrapper {
+	  flex: 1;
+	  display: flex;
+	  justify-content: center;
+	  padding: 40px 16px;
+	  box-sizing: border-box;
+	}
 
-        #resetBtn {
-            background: #ffd54a;
-            color: var(--texto);
-            border: none;
-            font-family: 'Alegreya Sans', Inter, system-ui, Arial, sans-serif;
-        }
+	.sorter-card {
+	  width: 100%;
+	  max-width: 990px;
+	  background: var(--fondo);
+	  border-radius: 18px;
+	  box-shadow: 0 24px 48px rgba(115, 114, 114, 0,1);
+	  padding: 90px;
+	  display: flex;
+	  flex-direction: column;
+	  gap: 40px;
+	}
 
-        /* hover/focus effects */
-        #spinBtn:hover, #spinBtn:focus { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(4,24,40,0.12); }
-        #resetBtn:hover, #resetBtn:focus { transform: translateY(-3px); box-shadow: 0 10px 26px rgba(4,24,40,0.12); }
+	.result-display {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  gap: 24px;
+	}
 
-        main {
-            display: grid;
-            grid-template-columns: 1fr 360px;
-            gap: 16px;
-            margin-top: 0px
-        }
+		.element-card {
+			border: 3px solid var(--violeta);
+			border-radius: 16px;
+			padding: 60px;
+			background: linear-gradient(135deg, rgba(255, 255, 255, 0), rgba(90, 79, 225, 0.05));
+			width: 470px;
+			height: 470px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			gap: 2px;
+			position: relative;
+			overflow: hidden;
+			box-sizing: border-box;
+		}
 
-        .viewer {
-            min-height: 460px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 10px;
-            padding: 14px;
-        }
+	.element-card::after {
+	  content: "";
+	  position: absolute;
+	  inset: 0;
+	  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.35), transparent 60%);
+	  pointer-events: none;
+	}
 
-        .photo-wrap {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            gap: 30px
-            ;position:relative
-        }
+	.element-number {
+	  font-size: 36px;
+	  font-weight: 700;
+	  color: var(--azul);
+	  position: absolute;
+	  top: 30px;
+	  right: 25px;
+	  line-height: 1;
+	}
 
-        .photo-wrap img {
-            max-width: 100%;
-            max-height: 340px;
-            border-radius: 10px;
-            /* remove soft blur shadow — we use a flat planar shadow behind */
-            box-shadow: none;
-            object-fit: contain;
-            position: relative;
-            z-index: 3;
-        }
+	.element-symbol {
+	  font-size: 140px;
+	  font-weight: 900;
+	  color: var(--texto-oscuro);
+	  letter-spacing: 1;
+	}
 
-        /* flat planar shadow effect behind the main photo using pseudo-elements */
-        .photo-wrap {
-            position: relative; /* ensure pseudo-elements are positioned relative to container */
-        }
+	.element-name {
+		font-size: 32px;
+		font-weight: 700;
+		color: var(--texto-oscuro);
+	}
 
-        /* gray plane offset (shadow) */
-        .photo-wrap::before {
-            content: "";
-            position: absolute;
-            width: min(72%, 520px);
-            height: min(56%, 420px);
-            left: 50%;
-            top: 50%;
-            transform: translate(calc(-50% + 18px), calc(-50% + 18px)); /* offset to the right and down */
-            background: #d9d9d9; /* flat gray plane */
-            border-radius: 12px;
-            z-index: 1;
-        }
+	.element-extra {
+	  font-size: 24px;
+	  opacity: 0.7;
+	  line-height: 2;
+	}
 
-        /* white card layer that sits above the gray plane and behind the image */
-        .photo-wrap::after {
-            content: "";
-            position: absolute;
-            width: min(70%, 500px);
-            height: min(54%, 400px);
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            background: #ffffff;
-            border-radius: 10px;
-            z-index: 2;
-            box-shadow: none;
-        }
+	.element-card.spin {
+	  animation: pulse 0.6s ease-in-out infinite alternate;
+	}
 
-        /* photo-cell removed — main image will be appended directly into .photo-wrap */
+	.element-card.flash {
+	  animation: highlight 0.8s ease-out;
+	}
 
-        .caption {
-            font-weight: 800;
-            text-align: center
-        }
+	@keyframes pulse {
+	  from {
+		transform: scale(1);
+	  }
 
-        .sidebar {
-            display: flex;
-            flex-direction: column;
-            gap: 12px
-        }
+	  to {
+		transform: scale(1.03);
+	  }
+	}
 
-        .history {
-            background:rgb(255, 221, 0);
-            border-radius: 8px;
-            padding: 10px;
-            max-height: 600px;
-            min-height: 66px;
-            min-width: 360px;
-            overflow:auto;
-            border: 0px solid rgba(3, 139, 250, 0.913);
-              display: grid;
-              grid-template-columns: repeat(5, 64px);
-              gap: 10px;
-              justify-content: start;
-              align-items: start;
-        }
+	@keyframes highlight {
+	  0% {
+		box-shadow: 0 0 0 rgba(79, 225, 91, 0.6);
+		transform: scale(1.05);
+	  }
 
-        .pill {
-            display:none;
-        }
+	  100% {
+		box-shadow: 0 0 0 rgba(90, 79, 225, 0);
+		transform: scale(1);
+	  }
+	}
 
-        .thumb {
-            width: 52px;
-            height: 52px;
-            border-radius: 6px;
-            overflow: hidden;
-            flex: 0 0 52px
-        }
+	.controls {
+	  display: flex;
+	  flex-wrap: wrap;
+	  justify-content: center;
+	  gap: 14px;
+	}
 
-        .thumb img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover
-        }
+	.controls button {
+	  border: none;
+	  border-radius: 10px;
+	  padding: 12px 36px;
+	  font-size: 20px;
+	  font-weight: 700;
+	  font-family: inherit;
+	  cursor: pointer;
+	  transition: transform 0.2s ease, box-shadow 0.2s ease;
+	}
 
-        .meta {
-            font-size: 13px
-        }
+	.controls button:disabled {
+	  cursor: not-allowed;
+	  opacity: 0.6;
+	}
 
-        .meta .num {
-            font-weight: 800
-        }
+	.btn-draw {
+	  background: var(--azul);
+	  color: #fff;
+	}
 
-        .grid-preview {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px
-        }
+	.btn-reset {
+	  background: var(--verde);
+	  color: var(--texto-oscuro);
+	}
 
-        .grid-cell {
-            height: 76px;
-            background: linear-gradient(180deg, #fff, #f7fbff);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            border: 1px dashed rgba(0, 0, 0, 0.04);
-            overflow: hidden
-        }
+	.controls button:not(:disabled):hover {
+	  transform: translateY(-2px);
+	  box-shadow: 0 16px 28px rgba(25, 35, 54, 0.18);
+	}
 
-        .grid-cell img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover
-        }
+	.history {
+	  display: grid;
+	  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+	  gap: 16px;
+	  padding-right: 4px;
+	}
 
-        .wheel {
-            width: 600px;
-            height: 600px;
-            position: center;
-            border-radius: 0%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, #fff, #f0f8ff);
-            margin: 0 auto 6px;
-            box-shadow: 0 10px 30px rgba(4, 24, 40, 0.06);
-            overflow: hidden
-        }
+	.history-item {
+	  position: relative;
+	  border: 2px solid var(--verde);
+	  border-radius: 0px;
+	  padding: 14px 16px;
+	  background: var(--fondo);
+	  display: grid;
+	  grid-template-rows: auto 1fr auto;
+	  justify-items: center;
+	  align-items: center;
+	  gap: 6px;
+	  aspect-ratio: 1;
+	  box-sizing: border-box;
+	}
 
-        .wheel img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover
-        }
-        /* selector square that highlights the final image */
-        .wheel .selector{
-            position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);width:62%;height:62%;border-radius:8px;border:6px solid rgba(4,24,40,0.08);box-shadow:0 8px 20px rgba(4,24,40,0.12);display:none;pointer-events:none;box-sizing:border-box;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0));}
-        .wheel .selector.show{display:block;animation:selectorPop 520ms cubic-bezier(.2,.9,.3,1)}
-        @keyframes selectorPop{from{transform:translate(-50%,-50%) scale(0.86);opacity:0.2}to{transform:translate(-50%,-50%) scale(1);opacity:1}}
-    /* photoWrap selector */
-    .photo-wrap .selector{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(1);width:62%;height:62%;border-radius:10px;border:6px solid rgba(4,24,40,0.08);box-shadow:0 8px 20px rgba(4,24,40,0.12);display:none;pointer-events:none;box-sizing:border-box;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0));}
-    .photo-wrap .selector.show{display:block;animation:selectorPop 520ms cubic-bezier(.2,.9,.3,1)}
+	.history-number {
+	  justify-self: stretch;
+	  font-size: 16px;
+	  font-weight: 700;
+	  color: var(--violeta);
+	  width: 100%;
+	  text-align: right;
+	}
 
-        footer {
-            margin-top: 12px;
-            text-align: center;
-            font-size: 13px;
-            color: rgba(0, 0, 0, 0.6)
-        }
+	.history-symbol {
+	  font-size: 50px;
+	  font-weight: 900;
+	  letter-spacing: 1px;
+	  color: var(--violeta);
+	}
 
-        @media(max-width:900px) {
-            main {
-                grid-template-columns: 1fr
-            }
+	.history-name {
+	  font-size: 14px;
+	  font-weight: 600;
+	  text-align: center;
+	  color: var(--violeta);
+	  line-height: 1.15;
+	}
 
-            .sidebar {
-                order: 2
-            }
-        }
+	.empty-state {
+	  text-align: center;
+	  padding: 32px;
+	  border: 2px dashed rgba(255, 255, 255, 0.35);
+	  border-radius: 16px;
+	  color: rgba(11, 27, 43, 0.6);
+	  font-style: italic;
+	}
 
-        /* responsive history columns: fewer columns on small screens */
-        @media (max-width:800px) {
-            .history { grid-template-columns: repeat(3, 64px); }
-        }
-        @media (max-width:480px) {
-            .history { grid-template-columns: repeat(2, 64px); }
-        }
-    </style>
+	@media (max-width: 720px) {
+	  .taco-violeta-content {
+		flex-direction: column;
+		text-align: center;
+		gap: 16px;
+	  }
+
+	  .logo-fiq {
+		height: 56px;
+	  }
+
+	  .sorter-card {
+		padding: 24px;
+	  }
+
+			.element-card {
+				width: min(100%, 280px);
+				height: auto;
+				padding: 40px;
+			}
+
+	  .element-symbol {
+		font-size: 56px;
+	  }
+	}
+  </style>
 </head>
 
 <body>
-    <div class="app">
-        <header>
-            <div>
-                <h1> « Bingo Argento »</h1>
-            </div>
-        </header>
+  <header class="taco-violeta">
+	<div class="taco-violeta-content">
+	  <div class="taco-violeta-textos">
+		<h1>Ruleta de Elementos</h1>
+		<p>Iniciá el sorteo para obtener un elemento aleatorio de la tabla periódica, sin repetir números atómicos.</p>
+		<div class="mas-actividades">
+		  <span>Más actividades en </span><a href="https://servicios.unl.edu.ar/plataformaeducativa/" target="_blank">Plataforma Educativa FIQ</a>
+		</div>
+	  </div>
+	  <img src="https://www.fiq.unl.edu.ar/wp-content/uploads/2017/09/fiq-03-2.svg" alt="Logo FIQ" class="logo-fiq">
+	</div>
+  </header>
 
-        <div class="controls">
-            <button id="spinBtn" class="secondary">Ruleta</button>
-            <button id="resetBtn" class="secondary">Reiniciar</button>
-        </div>
+  <main class="wrapper">
+	<section class="sorter-card">
+	  <div class="result-display">
+		<article class="element-card" id="current-element">
+		  <span class="element-number">N.º</span>
+		  <span class="element-symbol">--</span>
+		  <span class="element-name">Esperando sorteo...</span>
+		  <span class="element-extra">Sin elementos todavía</span>
+		</article>
+		<div class="controls">
+		  <button class="btn-draw" id="draw-button">Sortear elemento</button>
+		  <button class="btn-reset" id="reset-button">Reiniciar sorteo</button>
+		</div>
+	  </div>
 
-        <main>
-            <div class="viewer">
-                <div style="width:100%">
-                    <div class="wheel" id="wheel" title="Ruleta">
-                        <div style="font-size:36px;opacity:0.35">🇦🇷</div>
-                        <div class="selector" id="selector"></div>
-                    </div>
-                    <div class="photo-wrap" id="photoWrap"></div>
-                    <div class="caption" id="captionArea"></div>
-                </div>
-            </div>
+	  <div>
+		<h2 style="margin:0 0 12px 0; font-size:24px; color:var(--azul);">Elementos sorteados</h2>
+		<div class="history" id="history"></div>
+		<div class="empty-state" id="empty-history">Aún no se sorteó ningún elemento.</div>
+	  </div>
+	</section>
+  </main>
 
-            <aside class="sidebar">
-                <div>
-                    <div class="history" id="history"></div>
-                </div>
-                <!-- Preview (restantes) eliminado a pedido -->
-            </aside>
-        </main>
+  <script>
+	/* ************************************************************************** */
+	/*  Datos básicos de la tabla periódica                                      */
+	/* ************************************************************************** */
+	const elements = [
+	  { number: 1, symbol: 'H', name: 'Hidrógeno', category: 'No metal' },
+	  { number: 2, symbol: 'He', name: 'Helio', category: 'Gas noble' },
+	  { number: 3, symbol: 'Li', name: 'Litio', category: 'Metal alcalino' },
+	  { number: 4, symbol: 'Be', name: 'Berilio', category: 'Metal alcalinotérreo' },
+	  { number: 5, symbol: 'B', name: 'Boro', category: 'Metaloide' },
+	  { number: 6, symbol: 'C', name: 'Carbono', category: 'No metal' },
+	  { number: 7, symbol: 'N', name: 'Nitrógeno', category: 'No metal' },
+	  { number: 8, symbol: 'O', name: 'Oxígeno', category: 'No metal' },
+	  { number: 9, symbol: 'F', name: 'Flúor', category: 'Halógeno' },
+	  { number: 10, symbol: 'Ne', name: 'Neón', category: 'Gas noble' },
+	  { number: 11, symbol: 'Na', name: 'Sodio', category: 'Metal alcalino' },
+	  { number: 12, symbol: 'Mg', name: 'Magnesio', category: 'Metal alcalinotérreo' },
+	  { number: 13, symbol: 'Al', name: 'Aluminio', category: 'Metal de post-transición' },
+	  { number: 14, symbol: 'Si', name: 'Silicio', category: 'Metaloide' },
+	  { number: 15, symbol: 'P', name: 'Fósforo', category: 'No metal' },
+	  { number: 16, symbol: 'S', name: 'Azufre', category: 'No metal' },
+	  { number: 17, symbol: 'Cl', name: 'Cloro', category: 'Halógeno' },
+	  { number: 18, symbol: 'Ar', name: 'Argón', category: 'Gas noble' },
+	  { number: 19, symbol: 'K', name: 'Potasio', category: 'Metal alcalino' },
+	  { number: 20, symbol: 'Ca', name: 'Calcio', category: 'Metal alcalinotérreo' },
+	  { number: 21, symbol: 'Sc', name: 'Escandio', category: 'Metal de transición' },
+	  { number: 22, symbol: 'Ti', name: 'Titanio', category: 'Metal de transición' },
+	  { number: 23, symbol: 'V', name: 'Vanadio', category: 'Metal de transición' },
+	  { number: 24, symbol: 'Cr', name: 'Cromo', category: 'Metal de transición' },
+	  { number: 25, symbol: 'Mn', name: 'Manganeso', category: 'Metal de transición' },
+	  { number: 26, symbol: 'Fe', name: 'Hierro', category: 'Metal de transición' },
+	  { number: 27, symbol: 'Co', name: 'Cobalto', category: 'Metal de transición' },
+	  { number: 28, symbol: 'Ni', name: 'Níquel', category: 'Metal de transición' },
+	  { number: 29, symbol: 'Cu', name: 'Cobre', category: 'Metal de transición' },
+	  { number: 30, symbol: 'Zn', name: 'Zinc', category: 'Metal de transición' },
+	  { number: 31, symbol: 'Ga', name: 'Galio', category: 'Metal de post-transición' },
+	  { number: 32, symbol: 'Ge', name: 'Germanio', category: 'Metaloide' },
+	  { number: 33, symbol: 'As', name: 'Arsénico', category: 'Metaloide' },
+	  { number: 34, symbol: 'Se', name: 'Selenio', category: 'No metal' },
+	  { number: 35, symbol: 'Br', name: 'Bromo', category: 'Halógeno' },
+	  { number: 36, symbol: 'Kr', name: 'Kriptón', category: 'Gas noble' },
+	  { number: 37, symbol: 'Rb', name: 'Rubidio', category: 'Metal alcalino' },
+	  { number: 38, symbol: 'Sr', name: 'Estroncio', category: 'Metal alcalinotérreo' },
+	  { number: 39, symbol: 'Y', name: 'Itrio', category: 'Metal de transición' },
+	  { number: 40, symbol: 'Zr', name: 'Circonio', category: 'Metal de transición' },
+	  { number: 41, symbol: 'Nb', name: 'Niobio', category: 'Metal de transición' },
+	  { number: 42, symbol: 'Mo', name: 'Molibdeno', category: 'Metal de transición' },
+	  { number: 43, symbol: 'Tc', name: 'Tecnecio', category: 'Metal de transición' },
+	  { number: 44, symbol: 'Ru', name: 'Rutenio', category: 'Metal de transición' },
+	  { number: 45, symbol: 'Rh', name: 'Rodio', category: 'Metal de transición' },
+	  { number: 46, symbol: 'Pd', name: 'Paladio', category: 'Metal de transición' },
+	  { number: 47, symbol: 'Ag', name: 'Plata', category: 'Metal de transición' },
+	  { number: 48, symbol: 'Cd', name: 'Cadmio', category: 'Metal de transición' },
+	  { number: 49, symbol: 'In', name: 'Indio', category: 'Metal de post-transición' },
+	  { number: 50, symbol: 'Sn', name: 'Estaño', category: 'Metal de post-transición' },
+	  { number: 51, symbol: 'Sb', name: 'Antimonio', category: 'Metaloide' },
+	  { number: 52, symbol: 'Te', name: 'Telurio', category: 'Metaloide' },
+	  { number: 53, symbol: 'I', name: 'Yodo', category: 'Halógeno' },
+	  { number: 54, symbol: 'Xe', name: 'Xenón', category: 'Gas noble' },
+	  { number: 55, symbol: 'Cs', name: 'Cesio', category: 'Metal alcalino' },
+	  { number: 56, symbol: 'Ba', name: 'Bario', category: 'Metal alcalinotérreo' },
+	  { number: 57, symbol: 'La', name: 'Lantano', category: 'Lantánido' },
+	  { number: 58, symbol: 'Ce', name: 'Cerio', category: 'Lantánido' },
+	  { number: 59, symbol: 'Pr', name: 'Praseodimio', category: 'Lantánido' },
+	  { number: 60, symbol: 'Nd', name: 'Neodimio', category: 'Lantánido' },
+	  { number: 61, symbol: 'Pm', name: 'Prometio', category: 'Lantánido' },
+	  { number: 62, symbol: 'Sm', name: 'Samario', category: 'Lantánido' },
+	  { number: 63, symbol: 'Eu', name: 'Europio', category: 'Lantánido' },
+	  { number: 64, symbol: 'Gd', name: 'Gadolinio', category: 'Lantánido' },
+	  { number: 65, symbol: 'Tb', name: 'Terbio', category: 'Lantánido' },
+	  { number: 66, symbol: 'Dy', name: 'Disprosio', category: 'Lantánido' },
+	  { number: 67, symbol: 'Ho', name: 'Holmio', category: 'Lantánido' },
+	  { number: 68, symbol: 'Er', name: 'Erbio', category: 'Lantánido' },
+	  { number: 69, symbol: 'Tm', name: 'Tulio', category: 'Lantánido' },
+	  { number: 70, symbol: 'Yb', name: 'Iterbio', category: 'Lantánido' },
+	  { number: 71, symbol: 'Lu', name: 'Lutecio', category: 'Lantánido' },
+	  { number: 72, symbol: 'Hf', name: 'Hafnio', category: 'Metal de transición' },
+	  { number: 73, symbol: 'Ta', name: 'Tántalo', category: 'Metal de transición' },
+	  { number: 74, symbol: 'W', name: 'Wolframio', category: 'Metal de transición' },
+	  { number: 75, symbol: 'Re', name: 'Renio', category: 'Metal de transición' },
+	  { number: 76, symbol: 'Os', name: 'Osmio', category: 'Metal de transición' },
+	  { number: 77, symbol: 'Ir', name: 'Iridio', category: 'Metal de transición' },
+	  { number: 78, symbol: 'Pt', name: 'Platino', category: 'Metal de transición' },
+	  { number: 79, symbol: 'Au', name: 'Oro', category: 'Metal de transición' },
+	  { number: 80, symbol: 'Hg', name: 'Mercurio', category: 'Metal de transición' },
+	  { number: 81, symbol: 'Tl', name: 'Talio', category: 'Metal de post-transición' },
+	  { number: 82, symbol: 'Pb', name: 'Plomo', category: 'Metal de post-transición' },
+	  { number: 83, symbol: 'Bi', name: 'Bismuto', category: 'Metal de post-transición' },
+	  { number: 84, symbol: 'Po', name: 'Polonio', category: 'Metaloide' },
+	  { number: 85, symbol: 'At', name: 'Astato', category: 'Halógeno' },
+	  { number: 86, symbol: 'Rn', name: 'Radón', category: 'Gas noble' },
+	  { number: 87, symbol: 'Fr', name: 'Francio', category: 'Metal alcalino' },
+	  { number: 88, symbol: 'Ra', name: 'Radio', category: 'Metal alcalinotérreo' },
+	  { number: 89, symbol: 'Ac', name: 'Actinio', category: 'Actínido' },
+	  { number: 90, symbol: 'Th', name: 'Torio', category: 'Actínido' },
+	  { number: 91, symbol: 'Pa', name: 'Protactinio', category: 'Actínido' },
+	  { number: 92, symbol: 'U', name: 'Uranio', category: 'Actínido' },
+	  { number: 93, symbol: 'Np', name: 'Neptunio', category: 'Actínido' },
+	  { number: 94, symbol: 'Pu', name: 'Plutonio', category: 'Actínido' },
+	  { number: 95, symbol: 'Am', name: 'Americio', category: 'Actínido' },
+	  { number: 96, symbol: 'Cm', name: 'Curio', category: 'Actínido' },
+	  { number: 97, symbol: 'Bk', name: 'Berkelio', category: 'Actínido' },
+	  { number: 98, symbol: 'Cf', name: 'Californio', category: 'Actínido' },
+	  { number: 99, symbol: 'Es', name: 'Einstenio', category: 'Actínido' },
+	  { number: 100, symbol: 'Fm', name: 'Fermio', category: 'Actínido' },
+	  { number: 101, symbol: 'Md', name: 'Mendelevio', category: 'Actínido' },
+	  { number: 102, symbol: 'No', name: 'Nobelio', category: 'Actínido' },
+	  { number: 103, symbol: 'Lr', name: 'Lawrencio', category: 'Actínido' },
+	  { number: 104, symbol: 'Rf', name: 'Rutherfordio', category: 'Metal de transición' },
+	  { number: 105, symbol: 'Db', name: 'Dubnio', category: 'Metal de transición' },
+	  { number: 106, symbol: 'Sg', name: 'Seaborgio', category: 'Metal de transición' },
+	  { number: 107, symbol: 'Bh', name: 'Bohrio', category: 'Metal de transición' },
+	  { number: 108, symbol: 'Hs', name: 'Hassio', category: 'Metal de transición' },
+	  { number: 109, symbol: 'Mt', name: 'Meitnerio', category: 'Metal de transición' },
+	  { number: 110, symbol: 'Ds', name: 'Darmstadtio', category: 'Metal de transición' },
+	  { number: 111, symbol: 'Rg', name: 'Roentgenio', category: 'Metal de transición' },
+	  { number: 112, symbol: 'Cn', name: 'Copernicio', category: 'Metal de transición' },
+	  { number: 113, symbol: 'Nh', name: 'Nihonio', category: 'Metal de post-transición' },
+	  { number: 114, symbol: 'Fl', name: 'Flerovio', category: 'Metal de post-transición' },
+	  { number: 115, symbol: 'Mc', name: 'Moscovio', category: 'Metal de post-transición' },
+	  { number: 116, symbol: 'Lv', name: 'Livermorio', category: 'Metal de post-transición' },
+	  { number: 117, symbol: 'Ts', name: 'Tenesino', category: 'Halógeno' },
+	  { number: 118, symbol: 'Og', name: 'Oganesón', category: 'Gas noble' }
+	];
 
-        <footer>
-        </footer>
-    </div>
+	const currentElementCard = document.getElementById('current-element');
+	const numberEl = currentElementCard.querySelector('.element-number');
+	const symbolEl = currentElementCard.querySelector('.element-symbol');
+	const nameEl = currentElementCard.querySelector('.element-name');
+	const extraEl = currentElementCard.querySelector('.element-extra');
+	const historyContainer = document.getElementById('history');
+	const emptyHistory = document.getElementById('empty-history');
+	const remainingCountEl = document.getElementById('remaining-count');
+	const statusMessageEl = document.getElementById('status-message');
+	const drawButton = document.getElementById('draw-button');
+	const resetButton = document.getElementById('reset-button');
 
-    <script>
-        // ===== SORTEADOR DE BINGO ARGENTINA =====
-        // Este script gestiona un sorteador de fotos interactivo con rueda y historial
-        // Características: Ruleta animada, historial visual, controles por teclado
+	let available = [...elements];
+	let history = [];
+	let spinning = false;
+	let spinInterval = null;
 
-        // Lista de archivos existentes en carpeta `fotos/` (proporcionados)
-        const filenames = [
-            "Ernesto 'Che' Guevara.png",
-            "albertofernandez.png",
-            "alfajores.png",
-            "alfonsin.png",
-            "argentina.jpeg",
-            "artemis.png",
-            "belgrano.png",
-            "birome.png",
-            "borges.png",
-            "capanella.png",
-            "carmenbarbieri.png",
-            "cerati.png",
-            "cinco_presidentes_en una semana.png",
-            "cocasarli.png",
-            "colapinto.png",
-            "colectivo.png",
-            "cristina.png",
-            "charly.png",
-            "dalila.png",
-            "delarua.png",
-            "dibujos_animados.png",
-            "difuntacorrea.png",
-            "dulce_de_leche.png",
-            "el_pato_cabrera_.png",
-            "eleonoracasano.png",
-            "elgauchitogil.png",
-            "elpapa.png",
-            "fangio.png",
-            "gabisabatini.png",
-            "gardel.png",
-            "gilda.png",
-            "gladislabombatucumana.png",
-            "huelladigital.png",
-            "ivandepineda.png",
-            "juanmartindel potro.png",
-            "jujuy.png",
-            "julioboca.png",
-            "karina.png",
-            "kichner.png",
-            "lalocomotora.png",
-            "lamonajimenez.png",
-            "lapequeparetto.png",
-            "lasleonas.png",
-            "leomatilli.png",
-            "lilitacarrio.png",
-            "lospalmeras.png",
-            "lostekis.png",
-            "lucinaaymar.png",
-            "luisaalbinoni.png",
-            "macri.png",
-            "mafalda.png",
-            "manuginobeli.png",
-            "maradona.png",
-            "maraniella_nuñez.png",
-            "maria_elena_walsh.png",
-            "mariasusana.png",
-            "martinfierro.png",
-            "maxima.png",
-            "menem.png",
-            "mercadolibre.png",
-            "mercedes_sosa.png",
-            "messi.png",
-            "mirtha_legrand.png",
-            "moria_casan.png",
-            "ricardodarin.png",
-            "ricardofort.png",
-            "rodrigo.png",
-            "sabato.png",
-            "sandro.png",
-            "sanmartin.png",
-            "santaolalla.png",
-            "sarafaccio.png",
-            "spineta.png",
-            "susana.png",
-            "valeriamassa.png"
-        ];
+	function formatCategory(category) {
+	  return category ? `${category}` : 'Sin clasificación';
+	}
 
-        // Construir array de imágenes con ruta relativa y etiquetas legibles
-        let imagesArray = filenames.map(f => ({ src: 'fotos/' + f, label: f.replace(/\.[^.]+$/, '').replace(/[_]/g, ' ').trim() }));
-        
-        // Estado del sorteo:
-        // - remaining: índices de fotos aún no sorteadas
-        // - drawn: índices de fotos ya sorteadas (en orden)
-        let remaining = imagesArray.map((_, i) => i);
-        let drawn = [];
+	function updateCard(element) {
+	  if (!element) {
+		numberEl.textContent = 'N.º';
+		symbolEl.textContent = '--';
+		nameEl.textContent = 'Esperando sorteo...';
+		extraEl.textContent = 'Sin datos todavía';
+		return;
+	  }
+	  numberEl.textContent = `N.º ${element.number}`;
+	  symbolEl.textContent = element.symbol;
+	  nameEl.textContent = element.name;
+	  extraEl.textContent = formatCategory(element.category);
+	}
 
-        // ===== ELEMENTOS DEL DOM =====
-        const spinBtn = document.getElementById('spinBtn');
-        const resetBtn = document.getElementById('resetBtn');
-        const photoWrap = document.getElementById('photoWrap');
-        const captionArea = document.getElementById('captionArea');
-        const historyEl = document.getElementById('history');
-        const wheelEl = document.getElementById('wheel');
+	function updateHistory() {
+	  historyContainer.innerHTML = '';
+	  if (history.length === 0) {
+		emptyHistory.style.display = 'block';
+		return;
+	  }
+	  emptyHistory.style.display = 'none';
+	  history.forEach(item => {
+		const div = document.createElement('div');
+		div.className = 'history-item';
+		div.innerHTML = `
+		  <span class="history-number">${item.number}</span>
+		  <span class="history-symbol">${item.symbol}</span>
+		  <span class="history-name">${item.name}</span>
+		`;
+		historyContainer.appendChild(div);
+	  });
+	}
 
-        // Codificar espacios y caracteres especiales en URLs
-        function safeSrc(src) {
-            return src.split('/').map(encodeURIComponent).join('/');
-        }
+	function updateRemaining() {
+	  if (remainingCountEl) {
+		remainingCountEl.textContent = available.length.toString();
+	  }
+	}
 
-        // Función de vista previa (deshabilitada)
-        function renderPreview() { /* sin vista previa */ }
+	function drawElement() {
+	  if (spinning || available.length === 0) {
+		return;
+	  }
+	  spinning = true;
+	  drawButton.disabled = true;
+	  if (statusMessageEl) {
+		statusMessageEl.textContent = 'Girando la ruleta...';
+	  }
+	  currentElementCard.classList.add('spin');
 
-        // Actualizar el historial: mostrar miniaturas de fotos ya sorteadas (más recientes primero)
-        function updateHistory() {
-            historyEl.innerHTML = '';
-            drawn.slice().reverse().forEach(idx => {
-                const item = document.createElement('div');
-                item.className = 'history-item';
-                item.style.width = '64px';
-                item.style.height = '64px';
-                item.style.borderRadius = '6px';
-                item.style.overflow = 'hidden';
-                item.style.flex = '0 0 64px';
-                const im = document.createElement('img');
-                im.src = safeSrc(imagesArray[idx].src);
-                im.alt = imagesArray[idx].label;
-                im.style.width = '100%'; im.style.height = '100%'; im.style.objectFit = 'cover';
-                item.appendChild(im);
-                historyEl.appendChild(item);
-            });
-        }
+	  spinInterval = setInterval(() => {
+		const preview = available[Math.floor(Math.random() * available.length)];
+		updateCard(preview);
+	  }, 120);
 
-        // Mostrar una imagen en el visor principal
-        function showImage(idx) {
-            photoWrap.innerHTML = '';
-            const img = document.createElement('img'); img.src = safeSrc(imagesArray[idx].src); img.alt = imagesArray[idx].label;
-            img.onerror = () => { img.style.objectFit = 'contain'; img.src = ''; img.alt = '(imagen no encontrada)'; img.style.background = '#eee'; };
-        }
+	  setTimeout(() => {
+		clearInterval(spinInterval);
+		spinInterval = null;
+		const index = Math.floor(Math.random() * available.length);
+		const element = available.splice(index, 1)[0];
+		history.unshift(element);
+		updateCard(element);
+		updateHistory();
+		updateRemaining();
+		if (statusMessageEl) {
+		  statusMessageEl.textContent = `Elemento sorteado: ${element.name}`;
+		}
+		currentElementCard.classList.remove('spin');
+		currentElementCard.classList.add('flash');
+		currentElementCard.addEventListener('animationend', () => currentElementCard.classList.remove('flash'), { once: true });
+		spinning = false;
+		drawButton.disabled = available.length === 0;
+		if (available.length === 0 && statusMessageEl) {
+		  statusMessageEl.textContent = 'Se sortearon todos los elementos. Usá "Reiniciar" para comenzar otra vez.';
+		}
+	  }, 2400);
+	}
 
-        // Seleccionar una imagen aleatoria de las restantes
-        function takeRandom() {
-                if (remaining.length === 0) return;
-                const r = Math.floor(Math.random() * remaining.length);
-                const idx = remaining.splice(r, 1)[0];
-                drawn.push(idx);
-                showImage(idx); updateHistory();
-            }
+	function resetDraw() {
+	  if (spinning) {
+		return;
+	  }
+	  available = [...elements];
+	  history = [];
+	  updateCard(null);
+	  updateHistory();
+	  updateRemaining();
+	  if (statusMessageEl) {
+		statusMessageEl.textContent = 'Preparado para sortear.';
+	  }
+	  drawButton.disabled = false;
+	}
 
-        // Función principal de la ruleta: animar y sortear una foto
-        function spinWheel() {
-            if (remaining.length === 0) return alert('No quedan fotos para sacar.');
-            spinBtn.disabled = true; resetBtn.disabled = true;
-            // Configurar duración de la animación: más rápida con desaceleración suave
-                const totalTicks = 16 + Math.floor(Math.random() * 22); // 16 a 37 fotogramas
-                let time = 0; const durations = [];
-                for (let i = 0; i < totalTicks; i++) { durations.push(18 + Math.pow(i / totalTicks, 1.8) * 520); }
-            // Ciclo de animación de la rueda
-            durations.forEach(d => {
-                time += Math.round(d); setTimeout(() => {
-                    const pick = remaining[Math.floor(Math.random() * remaining.length)]; wheelEl.innerHTML = ''; const im = document.createElement('img'); im.src = safeSrc(imagesArray[pick].src); im.alt = imagesArray[pick].label; wheelEl.appendChild(im);
-                }, time);
-            });
+	drawButton.addEventListener('click', drawElement);
+	resetButton.addEventListener('click', resetDraw);
 
-            // Final: mostrar la foto sorteada y actualizar interfaz
-            setTimeout(() => {
-                    const r = Math.floor(Math.random() * remaining.length); const finalIdx = remaining.splice(r, 1)[0]; drawn.push(finalIdx);
-                    // Mostrar imagen final en rueda y visor
-                wheelEl.innerHTML = ''; const finalImg = document.createElement('img'); finalImg.src = safeSrc(imagesArray[finalIdx].src); finalImg.alt = imagesArray[finalIdx].label; wheelEl.appendChild(finalImg);
-                showImage(finalIdx); updateHistory();
-                
-                // Mostrar rectángulo de selección en rueda
-                const selector = document.getElementById('selector');
-                if(selector){ selector.classList.add('show'); selector.style.borderColor = 'rgba(4,24,40,0.12)'; }
-                
-                // Mostrar rectángulo de selección en foto principal
-                let photoSelector = document.getElementById('photoSelector');
-                if(!photoSelector){ photoSelector = document.createElement('div'); photoSelector.id = 'photoSelector'; photoSelector.className = 'selector'; photoWrap.appendChild(photoSelector); }
-                photoSelector.classList.add('show'); photoSelector.style.borderColor = 'rgba(116,192,252,0.45)';
-                
-                // Reproducir sonido de finalización
-                try{ playSound(); }catch(e){/* ignorar errores de audio */}
-                
-                // Ocultar rectángulos después de una breve pausa
-                setTimeout(()=>{ if(selector) selector.classList.remove('show'); if(photoSelector) photoSelector.classList.remove('show'); }, 900);
-                spinBtn.disabled = false; resetBtn.disabled = false;
-            }, time + 120);
-        }
-
-        // Evento: clickear botón Ruleta
-        spinBtn.addEventListener('click', spinWheel);
-
-        // Evento: clickear botón Reiniciar
-        resetBtn.addEventListener('click', () => {
-            if (!confirm('¿Reiniciar sorteo y borrar historial?')) return;
-            remaining = imagesArray.map((_, i) => i);
-            drawn = [];
-            photoWrap.innerHTML = '';
-            captionArea.textContent = '';
-            updateHistory();
-        });
-
-        // ===== CONTROLES DE TECLADO =====
-        // Descargar estado del sorteo con Ctrl/Cmd+S
-        function downloadState() { const blob = new Blob([JSON.stringify({ imagesArray, drawn, remaining }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = 'sorteo_estado.json'; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url); }
-        window.addEventListener('keydown', e => { if ((e.ctrlKey || e.metaKey) && e.key === 's') { e.preventDefault(); downloadState(); } });
-
-        // Presionar ESPACIO para activar la ruleta (excepto si estamos escribiendo)
-        window.addEventListener('keydown', function(e) {
-            // Ignorar si se presionan teclas modificadoras
-            if (e.ctrlKey || e.altKey || e.metaKey) return;
-            const active = document.activeElement;
-            const isTyping = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
-            if (isTyping) return;
-            // Activar ruleta al presionar espacio
-            if (e.code === 'Space' || e.key === ' ') {
-                e.preventDefault();
-                if (!spinBtn.disabled) spinWheel();
-            }
-        });
-
-        // ===== AUDIO =====
-        // Reproducir un sonido agradable tipo campana cuando se completa el sorteo
-        function playSound(){
-            try{
-                const ctx = new (window.AudioContext||window.webkitAudioContext)();
-                const now = ctx.currentTime;
-                // Acordes mayores (Do5, Mi5, Sol5) para un sonido amigable
-                const notes = [523.25, 659.25, 783.99];
-
-                // Nodos principales de audio
-                const master = ctx.createGain(); master.gain.value = 0.9;
-                const filter = ctx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 5200;
-                master.connect(filter);
-                filter.connect(ctx.destination);
-
-                // Reproducir cada nota del acorde
-                notes.forEach((freq, i) => {
-                    const t = now + i * 0.12;
-                    // Dos osciladores por nota para un timbre más cálido
-                    const o1 = ctx.createOscillator(); o1.type = 'sine'; o1.frequency.setValueAtTime(freq, t);
-                    const o2 = ctx.createOscillator(); o2.type = 'triangle'; o2.frequency.setValueAtTime(freq * 2, t); o2.detune.value = -10;
-
-                    const g = ctx.createGain();
-                    // Ataque rápido, sustain y decaimiento largo para efecto de campana
-                    g.gain.setValueAtTime(0.0001, t);
-                    g.gain.linearRampToValueAtTime(0.14, t + 0.03);
-                    g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
-
-                    o1.connect(g); o2.connect(g); g.connect(master);
-                    o1.start(t); o2.start(t);
-                    o1.stop(t + 1.4); o2.stop(t + 1.4);
-                });
-            }catch(err){ console.warn('Error de audio:', err); }
-        }
-
-        // ===== INICIALIZACIÓN =====
-        renderPreview();
-        updateHistory();
-
-    </script>
+	updateCard(null);
+	updateHistory();
+	updateRemaining();
+  </script>
 </body>
 
 </html>
