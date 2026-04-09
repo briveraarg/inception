@@ -94,8 +94,6 @@ make bonus
 | `make bonus-ftp-cli` | Conecta al servidor FTP interactivamente |
 
 
-```
-
 ## Descripción del proyecto
 
 ### Uso de Docker
@@ -196,9 +194,11 @@ make bonus
   - Ideal para galerías de fotos y sitios estáticos
   - Accesible en `http://brivera.42.fr:80` o en la red interna
 
+
+**Entra a la consola de Redis donde puedes hacer:**
+
+`make bonus-redis-cli`
 ```
-make bonus-redis-cli
-# Entra a la consola de Redis donde puedes hacer:
 > PING                    # Verifica que Redis está vivo
 > SET key value          # Guardar datos
 > GET key                # Obtener datos
@@ -207,8 +207,9 @@ make bonus-redis-cli
 ```
 
 **Acceso a FTP:**
+`make bonus-ftp-cli`
+
 ```
-make bonus-ftp-cli
 # O usando un cliente FTP:
 # - lftp: lftp -u usuario,contraseña ftp://localhost
 # - FileZilla: Conectar a localhost:21

@@ -319,6 +319,7 @@ curl -k https://brivera.42.fr
 
 # Verifica la versión de TLS
 curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
+```
 
 ## Resumen de Implementación
 
@@ -457,4 +458,3 @@ Ventajas:
 7. **Servidor Static separado**: Servir contenido estático eficientemente sin cargar PHP
    - NGINX en contenedor dedicado para archivos estáticos (HTML, CSS, imágenes)
    - Mejora rendimiento y seguridad separando lógica dinámica de estática
-```
