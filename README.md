@@ -191,7 +191,6 @@ make bonus
 - **Static** — Servidor web para contenido estático
   - Sirve archivos HTML, CSS, imágenes y otros recursos estáticos
   - Accesible en puerto 80 via HTTP
-  - Ideal para galerías de fotos y sitios estáticos
   - Accesible en `http://brivera.42.fr:80` o en la red interna
 
 
@@ -224,7 +223,6 @@ curl http://brivera.42.fr:80
 http://brivera.42.fr:80
 # Los archivos estáticos están en:
 # /var/www/html/index.html
-# /var/www/html/fotos/ -> imágenes
 ```
 
 Estos servicios se despliegan usando `docker-compose.bonus.yml` y se integran en la misma red que la infraestructura principal.

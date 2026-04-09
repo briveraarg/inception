@@ -634,7 +634,6 @@ Es un servidor NGINX dedicado a servir contenido estático (HTML, CSS, imágenes
 - Servidor NGINX para contenido estático
 - Puerto 80 (HTTP)
 - Archivos en `/var/www/html`
-- Carpeta `/fotos` para galerías
 - Conectado a la red inception
 
 ### Acceso a Static
@@ -649,20 +648,11 @@ curl http://brivera.42.fr:80
 http://brivera.42.fr:80
 ```
 
-**Acceder a la galería:**
-```
-http://brivera.42.fr:80/fotos
-```
-
 ### Estructura de archivos
 
 ```
 /var/www/html/
-├── index.html       # Página principal
-└── fotos/           # Galería de imágenes
-    ├── imagen1.jpg
-    ├── imagen2.png
-    └── ...
+└── index.html       # Página principal
 ```
 
 ---

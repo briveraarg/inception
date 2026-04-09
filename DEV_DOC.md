@@ -262,8 +262,7 @@ srcs_bonus/
         ├── static/
         │   ├── Dockerfile      ← imagen Alpine + Nginx para contenido estático
         │   └── html/
-        │       ├── index.html   ← página principal
-        │       └── fotos/       ← galería de imágenes
+        │       └── index.html   ← página principal
         │
         └── wordpress/
             ├── Dockerfile      ← WordPress + Redis Object Cache plugin
@@ -384,9 +383,7 @@ curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 - Servidor web nginx para contenido estático
 - Acceso en puerto 80 (HTTP)
 - Sirve archivos HTML, CSS, imágenes sin procesamiento PHP
-- Ideal para galerías de fotos y contenido estático
 - Volumen con archivos en `/var/www/html`
-- Carpeta `/fotos` para almacenar imágenes
 - Conectado a red `inception`
 
 **WordPress con Redis Object Cache**

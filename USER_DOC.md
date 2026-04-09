@@ -256,13 +256,7 @@ O en el navegador:
 http://brivera.42.fr:80
 ```
 
-Deberías ver la página de inicio `index.html`. Los archivos están organizados así:
+Deberías ver la página de inicio `index.html` en:
 ```
-/var/www/html/index.html     → Página principal
-/var/www/html/fotos/         → Galería de imágenes
-```
-
-Para acceder a las fotos desde el navegador:
-```
-http://brivera.42.fr:80/fotos
+http://brivera.42.fr:80
 ```
