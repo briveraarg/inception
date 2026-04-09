@@ -110,6 +110,8 @@ fclean:
 
 re: fclean all
 
+
+# -------- BONUS -------- #
 bonus: $(SRCS) secrets/server.crt
 	@echo "$(CYAN)[$(NAME)] Building and starting containers with Redis and FTP...$(CLEAR_COLOR)"
 	@docker compose -f srcs_bonus/docker-compose.bonus.yml up -d
@@ -150,6 +152,14 @@ bonus-fclean:
 	@sudo rm -rf $(HOME)/data/redis/*
 	@echo "$(GREEN)[$(NAME)] Full bonus cleanup complete!$(CLEAR_COLOR)"
 
+bonus-redis-cli:
+	@echo "$(CYAN)[$(NAME)] Connecting to Redis CLI...$(CLEAR_COLOR)"
+	docker exec -it redis redis-cli
+
+bonus-ftp-cli:
+	@echo "$(CYAN)[$(NAME)] Connecting to FTP...$(CLEAR_COLOR)"
+	docker exec -it ftp /bin/sh
+
 help:
 	@echo "Targets disponibles:"
 	@echo "  $(GREEN)all$(CLEAR_COLOR)		— build y start"
@@ -165,6 +175,7 @@ help:
 	@echo "  $(RED)clean$(CLEAR_COLOR)   	— down + borrar volúmenes"
 	@echo "  $(RED)fclean$(CLEAR_COLOR)  	— limpieza total (imágenes, volúmenes, datos)"
 	@echo "  $(GREEN)re $(CLEAR_COLOR)		— fclean + all"
+	@echo "  $(GREEN)------------------------------------- $(CLEAR_COLOR)"
 	@echo "  $(CYAN)bonus$(CLEAR_COLOR)		— build y start con Redis"
 	@echo "  $(CYAN)bonus-down$(CLEAR_COLOR)	— parar contenedores bonus"
 	@echo "  $(CYAN)bonus-stop$(CLEAR_COLOR)	— pausar sin eliminar"
@@ -172,9 +183,10 @@ help:
 	@echo "  $(CYAN)bonus-ps$(CLEAR_COLOR)		— estado de contenedores bonus"
 	@echo "  $(CYAN)bonus-logs$(CLEAR_COLOR)	— ver logs de bonus"
 	@echo "  $(CYAN)bonus-redis-cli$(CLEAR_COLOR)	— conectar a Redis CLI"
+	@echo "  $(CYAN)bonus-ftp-cli$(CLEAR_COLOR)	— conectar al servidor FTP"
 
 	@echo "  $(RED)bonus-clean$(CLEAR_COLOR)	— down + borrar volúmenes bonus"
 	@echo "  $(RED)bonus-fclean$(CLEAR_COLOR)	— limpieza total bonus (imágenes, volúmenes, datos)"
 
 .PHONY: all dirs down stop start ps status logs db db-root db-show cert clean fclean re help \
-	bonus bonus-down bonus-stop bonus-start bonus-ps bonus-logs bonus-redis-cli bonus-clean bonus-fclean
+	bonus bonus-down bonus-stop bonus-start bonus-ps bonus-logs bonus-redis-cli bonus-ftp-cli bonus-clean bonus-fclean

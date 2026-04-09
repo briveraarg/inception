@@ -235,6 +235,13 @@ srcs_bonus/
         │       ├── init.sh     ← inicialización con contraseña
         │       └── healthcheck.sh  ← verificación de salud
         │
+        ├── ftp/
+        │   ├── Dockerfile      ← imagen Alpine + vsftpd
+        │   ├── conf/
+        │   │   └── vsftpd.conf ← configuración de FTP
+        │   └── tools/
+        │       └── entrypoint.sh    ← gestión de usuarios y arranque
+        │
         └── wordpress/
             ├── Dockerfile      ← WordPress + Redis Object Cache plugin
             ├── conf/
@@ -270,7 +277,8 @@ Los datos se almacenan en volúmenes Docker que el Makefile crea automáticament
 /home/brivera42/data/
 ├── mariadb/     ← base de datos (volumen db)
 ├── wordpress/   ← archivos del sitio (volumen wordpress)
-└── redis/       ← caché Redis bonus (volumen redis)
+├── redis/       ← caché Redis bonus (volumen redis)
+└── ftp/         ← archivos del cliente FTP (volumen ftp)
 ```
 
 Estos volúmenes **persisten** entre reinicios:
@@ -340,6 +348,14 @@ curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 - Volumen persistente para datos
 - Conectado a red `inception`
 
+**FTP**
+- Servidor vsftpd para transferencia de archivos
+- Acceso en puerto 21
+- Credenciales almacenadas en `secrets/ftp_password`
+- Permite gestionar archivos de WordPress remotamente
+- Volumen para persistencia de datos compartido
+- Conectado a red `inception`
+
 **WordPress con Redis Object Cache**
 - Plugin "Redis Object Cache" v2.7.0
 - Instalación y activación automática
@@ -361,6 +377,7 @@ curl -v -k https://brivera.42.fr 2>&1 | grep "SSL connection"
 | CMS | WordPress | latest |
 | Caché | Redis | latest |
 | Plugin Caché | Redis Object Cache | 2.7.0 |
+| FTP | vsftpd | latest |
 | CLI DB | MariaDB Client | latest |
 | CLI CMS | WP-CLI | latest |
 | Orquestación | Docker Compose | latest |

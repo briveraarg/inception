@@ -84,11 +84,12 @@ make bonus
 
 | Comando | Descripción |
 |---|---|
-| `make bonus` | Construye y levanta contenedores + Redis |
+| `make bonus` | Construye y levanta contenedores + Redis + FTP |
 | `make bonus-down` | Para los contenedores bonus |
 | `make bonus-logs` | Muestra los logs de bonus |
 | `make bonus-ps` | Estado de contenedores bonus |
 | `make bonus-redis-cli` | Conecta a Redis CLI interactivamente |
+| `make bonus-ftp-cli` | Conecta al servidor FTP interactivamente |
 
 
 ```
@@ -182,6 +183,11 @@ make bonus
   - Plugin "Redis Object Cache" instalado y activado
   - Conecta automáticamente a Redis en `redis:6379`
   - Acelera consultas de bases de datos y objetos PHP
+- **FTP** — Servidor de transferencia de archivos para gestionar contenidos
+  - Servicio vsftpd configurado para acceso remoto
+  - Protegido con credenciales almacenadas en `secrets/ftp_password`
+  - Permite subir y descargar archivos de WordPress
+  - Accesible en puerto 21 (requiere cliente FTP o `make bonus-ftp-cli`)
 
 ```
 make bonus-redis-cli
@@ -191,6 +197,15 @@ make bonus-redis-cli
 > GET key                # Obtener datos
 > FLUSHALL               # Borrar todo
 > INFO                   # Ver estadísticas
+```
+
+**Acceso a FTP:**
+```
+make bonus-ftp-cli
+# O usando un cliente FTP:
+# - lftp: lftp -u usuario,contraseña ftp://localhost
+# - FileZilla: Conectar a localhost:21
+# Credenciales almacenadas en secrets/ftp_password
 ```
 
 Estos servicios se despliegan usando `docker-compose.bonus.yml` y se integran en la misma red que la infraestructura principal.
