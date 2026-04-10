@@ -36,6 +36,8 @@ echo "dbpass123" > secrets/db_password
 echo "dbroot123" > secrets/db_root_password
 echo "wpadminpass123" > secrets/wp_admin_password
 echo "wpeditorpass123" > secrets/wpuser_password
+echo "ftppass123" > secrets/ftp_password
+echo "raddpass123" > secrets/redis_password
 ```
 #### Crear el archivo `.env`
 ```
