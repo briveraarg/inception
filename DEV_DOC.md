@@ -25,17 +25,16 @@ git clone <repositorio> inception
 cd inception
 ```
 
-### Crear los archivos de secrets
-
-Estos archivos no están en el repositorio por seguridad.
-Hay que crearlos manualmente antes del primer arranque:
-
-```bash
-echo "wppass123" > secrets/db_password
-echo "rootpass123" > secrets/db_root_password
-echo "adminpass123" > secrets/wp_admin_password
-echo "editorpass123" > secrets/wpuser_password
+### Crear los archivos de `secrets`
 ```
+echo "dbpass123" > secrets/db_password
+echo "dbroot123" > secrets/db_root_password
+echo "wpadminpass123" > secrets/wp_admin_password
+echo "wpeditorpass123" > secrets/wpuser_password
+echo "ftppass123" > secrets/ftp_password
+echo "raddpass123" > secrets/redis_password
+```
+**Nota:** Estas son contraseñas de **ejemplo solo para desarrollo local**. En producción usa contraseñas fuertes y nunca las publiques. El archivo `secrets/` está en `.gitignore` para evitar filtrar credenciales.
 
 El certificado TLS se genera automáticamente con `make`.
 
@@ -45,7 +44,7 @@ nano srcs/.env
 ```
 ```
 # Dominio
-DOMAIN_NAME=brivera.42.fr
+DOMAIN_NAME=tu_login.42.fr
 
 # Puerto
 HTTPS_PORT=443
@@ -55,12 +54,14 @@ MYSQL_DATABASE=wordpress
 MYSQL_USER=wpuser
 
 # WordPress
-WP_ADMIN_USER=brivera42
-WP_ADMIN_EMAIL=brivera@student.42madrid.com
-WP_USER=wpeditor
-WP_USER_EMAIL=editor@42madrid.com
+WP_ADMIN_USER=admin_user
+WP_ADMIN_EMAIL=admin@example.com
+WP_USER=editor_user
+WP_USER_EMAIL=editor@example.com
 ```
-**Nota:** El archivo `.env` contiene configuración general (dominio, usuario, email).
+**Nota:** El archivo `.env` contiene configuración general (dominio, usuario, email). Personaliza los valores según tu entorno. El archivo está en `.gitignore` para evitar publicar configuración sensible. En producción, usa valores reales y seguros.
+
+**Nota** El archivo `.env` hay que hacer una copia para el bonus en `srcs_bonus` y agregar la variable de `FTP_USER`
 
 ### Configurar el dominio
 
@@ -171,13 +172,13 @@ Si PID 1 es un shell scripts, el contenedor puede detenerse incorrectamente al r
 **Verificar PID 1 en cada contenedor:**
 ```bash
 # Ver el proceso PID 1 de nginx
-docker exec inception-nginx ps aux | head -2
+docker exec nginx ps aux | head -2
 
 # Ver el proceso PID 1 de wordpress (php-fpm)
-docker exec inception-wordpress ps aux | head -2
+docker exec wordpress ps aux | head -2
 
 # Ver el proceso PID 1 de mariadb
-docker exec inception-mariadb ps aux | head -2
+docker exec mariadb ps aux | head -2
 ```
 
 **Lo que debes ver:**
