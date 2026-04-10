@@ -39,13 +39,15 @@ echo "wpeditorpass123" > secrets/wpuser_password
 echo "ftppass123" > secrets/ftp_password
 echo "raddpass123" > secrets/redis_password
 ```
+**Nota:** Estas son contraseñas de **ejemplo solo para desarrollo local**. En producción usa contraseñas fuertes y nunca las publiques. El archivo `secrets/` está en `.gitignore` para evitar filtrar credenciales.
+
 #### Crear el archivo `.env`
 ```
 nano srcs/.env
 ```
 ```
 # Dominio
-DOMAIN_NAME=brivera.42.fr
+DOMAIN_NAME=tu_login.42.fr
 
 # Puerto
 HTTPS_PORT=443
@@ -55,12 +57,12 @@ MYSQL_DATABASE=wordpress
 MYSQL_USER=wpuser
 
 # WordPress
-WP_ADMIN_USER=brivera42
-WP_ADMIN_EMAIL=brivera@student.42madrid.com
-WP_USER=wpeditor
-WP_USER_EMAIL=editor@42madrid.com
+WP_ADMIN_USER=admin_user
+WP_ADMIN_EMAIL=admin@example.com
+WP_USER=editor_user
+WP_USER_EMAIL=editor@example.com
 ```
-**Nota:** El archivo `.env` contiene configuración general (dominio, usuario, email).
+**Nota:** El archivo `.env` contiene configuración general (dominio, usuario, email). Personaliza los valores según tu entorno. El archivo está en `.gitignore` para evitar publicar configuración sensible. En producción, usa valores reales y seguros.
 
 #### Levantar el proyecto
 ```

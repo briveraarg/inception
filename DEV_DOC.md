@@ -163,6 +163,42 @@ docker compose -f docker-compose.bonus.yml up --build static
 docker compose -f docker-compose.bonus.yml up --build wordpress
 ```
 
+### Verificar PID 1 en contenedores
+
+Es importante asegurar que **PID 1 es el proceso principal** del servicio.
+Si PID 1 es un shell scripts, el contenedor puede detenerse incorrectamente al recibir señales.
+
+**Verificar PID 1 en cada contenedor:**
+```bash
+# Ver el proceso PID 1 de nginx
+docker exec inception-nginx ps aux | head -2
+
+# Ver el proceso PID 1 de wordpress (php-fpm)
+docker exec inception-wordpress ps aux | head -2
+
+# Ver el proceso PID 1 de mariadb
+docker exec inception-mariadb ps aux | head -2
+```
+
+**Lo que debes ver:**
+| Contenedor | PID 1 esperado |
+|---|---|
+| **nginx** | `nginx` en foreground |
+| **wordpress** | `php-fpm` en foreground |
+| **mariadb** | `mysqld` en foreground |
+
+**Verificar desde interactivo:**
+```bash
+docker exec -it inception-nginx sh
+ps aux
+exit
+```
+
+**Verificar que el proceso es realmente PID 1:**
+```bash
+docker exec inception-nginx kill -0 1 && echo "PID 1 está activo"
+```
+
 ---
 
 ## Dónde se almacenan los datos y cómo persisten
