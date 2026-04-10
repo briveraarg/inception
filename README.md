@@ -66,12 +66,12 @@ WP_USER_EMAIL=editor@42madrid.com
 ```
 make
 ```
+**Nota** El archivo `.env` hay que hacer una copia para el bonus en `srcs_bonus` y agregar la variable de `FTP_USER`
 
 #### Levantar con bonus
 ```
 make bonus
 ```
-
 ### Comandos disponibles
 
 | Comando | Descripción |
