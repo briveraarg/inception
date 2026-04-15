@@ -1,4 +1,4 @@
-*Este proyecto fue creado como parte del currículo de 42 por brivera42.*
+*Este proyecto fue creado como parte del currículo de 42 por brivera.*
 
 # Inception
 

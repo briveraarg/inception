@@ -21,7 +21,7 @@ Docker Compose es una herramienta que permite **orquestar múltiples contenedore
 
 ## **Diferencia entre Docker solo vs docker-compose**
 - **Docker solo**: Ejecutas un contenedor manual con `docker run`. Tendrías que crear redes, volúmenes y dependencias tú mismo.
-- **Docker Compose**: Automatiza todo eso con un archivo YAML. Es ideal para multi-contenedor (como nuestro Inception con MySQL, WordPress y NGINX).
+- **Docker Compose**: Automatiza todo eso con un archivo YAML. Es ideal para multi-contenedor.
 
 ---
 
@@ -55,7 +55,7 @@ Si PID 1 muere, el contenedor muere. Por eso usamos `exec` en los entrypoints, n
 
 ## **¿Qué es un entrypoint?**
 Es el **comando que se ejecuta cuando inicia el contenedor**. Puede ser:
-- Un script shell (como en Inception: `/usr/local/bin/init.sh`)
+- Un script shell (en Inception: `/usr/local/bin/init.sh`)
 - Un binario directo (como `exec nginx`)
 
 El entrypoint reemplaza completamente lo que se pase como comando.
@@ -118,7 +118,7 @@ ENTRYPOINT **siempre se ejecuta**, los argumentos se añaden.
 
 ---
 
-## **En tu Inception - ENTRYPOINT es correcto**
+## **En Inception - ENTRYPOINT es correcto**
 
 Tu `wordpress/init.sh`:
 ```bash
@@ -250,7 +250,7 @@ Un volumen es un **mecanismo de persistencia de datos** en Docker. Los datos den
 | **Bind mount** | `/host/path:/container/path` | Sistema de archivos | Manual |
 | **Named volume** | `volume_name:/container/path` | Docker | Automática |
 
-En Inception usamos **named volumes con bind mount de backend** (lo mejor de ambos):
+En Inception: **named volumes con bind mount de backend** (lo mejor de ambos mundos):
 ```yaml
 device: /home/brivera/data/mariadb  # Persiste en /home
 ```
@@ -270,7 +270,7 @@ mariadb:3306    → resuelve al contenedor "mariadb"
 Es el **tipo de network por defecto** en Docker Compose. Crea una red virtual donde:
 - Los contenedores pueden comunicarse por nombre
 - Están aislados de redes externas (excepto si exponen puertos)
-- Es lo que usamos en Inception (`driver: bridge`)
+- En Inception (`driver: bridge`)
 
 ---
 
@@ -358,8 +358,6 @@ Si el usuario admin siempre es "admin", un atacante solo necesita:
 1. Conoce el username (`admin`)
 2. Solo tiene que probar contraseñas
 
-Nosotros usamos `brivera42` como admin, así el atacante tiene que adivinar tanto username como password → exponencialmente más difícil.
-
 ---
 
 ## **¿Por qué no se permite "latest"?**
@@ -408,11 +406,6 @@ exec mysqld  # mysqld es PID 1
              # Se apaga limpiamente
 ```
 
----
-
-Te voy a dar **explicaciones defensibles** para cada concepto, con ejemplos prácticos de tu proyecto:
-
----
 
 ## **Docker vs VM - Arquitectura**
 
@@ -461,7 +454,7 @@ Te voy a dar **explicaciones defensibles** para cada concepto, con ejemplos prá
 
 ---
 
-### **En tu proyecto Inception:**
+### **En el proyecto:**
 ```bash
 # Listar contenedores actuales
 docker ps
@@ -503,8 +496,6 @@ docker images
 # inception-wordpress   latest   6237d7a947af
 ```
 
----
-
 ### **Contenedor = Instancia en ejecución (mutable)**
 ```bash
 docker run inception-mariadb
@@ -527,11 +518,10 @@ docker ps
 # 08a919e816a4    inception-mariadb   mariadb    Up 10 minutes
 ```
 
----
 
 ### **Analogía:**
-- **Imagen**: Plantilla Word (.docx)
-- **Contenedor**: Documento abierto editando
+- **Imagen**: Plantilla Word (.docx) // el plano de una casa
+- **Contenedor**: Documento abierto editando // la casa habitada
 
 ---
 
